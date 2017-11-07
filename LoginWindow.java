@@ -33,7 +33,10 @@ public class LoginWindow {
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Login.png");
 
-        
+        //JPanel content
+
+
+        //background.add()
 
         main.add(background);
         main.setVisible(true);
