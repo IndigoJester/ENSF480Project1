@@ -4,9 +4,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
 import java.io.*;
+import java.sql.SQLException;
 
 
-public class LoginWindow {
+public class LoginWindow extends Authenticator{
     // private Authenticator anAuthenticator;
     private JButton loginButton;
     private JButton defaultButton;
@@ -37,12 +38,17 @@ public class LoginWindow {
 
 
         //background.add()
+        
+        
 
         main.add(background);
         main.setVisible(true);
     }
 
-    public static void main (String[] args) {
+    public static void main (String[] args) throws SQLException {
         LoginWindow temp = new LoginWindow();
+        String name = "DRoman";
+        String password = "password";
+        authenticate(name, password);
     }
 }
