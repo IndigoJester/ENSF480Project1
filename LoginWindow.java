@@ -7,16 +7,17 @@ import java.io.*;
 import java.sql.SQLException;
 
 
-public class LoginWindow extends Authenticator{
-    // private Authenticator anAuthenticator;
+public class LoginWindow {
+    private static Authenticator anAuthenticator;
     private JButton loginButton;
     private JButton defaultButton;
     private JTextField username;
     private JTextField password;
     private ActionListener buttonEventListener;
 
-    public LoginWindow () {
-        // anAuthenticator = new Authenticator();
+    public LoginWindow () throws SQLException {
+    	
+    	anAuthenticator = new Authenticator();
         this.display();
     }
 
@@ -47,8 +48,8 @@ public class LoginWindow extends Authenticator{
 
     public static void main (String[] args) throws SQLException {
         LoginWindow temp = new LoginWindow();
-        String name = "DRoman";
+        String name = "MNewell";
         String password = "password";
-        authenticate(name, password);
+        boolean login = anAuthenticator.authenticate(name, password);
     }
 }

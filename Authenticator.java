@@ -5,10 +5,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Authenticator {
+	private static Connection myConn;
 	
-	public static void authenticate(String username , String password) throws SQLException {
-
-		Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/credentials?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+	public Authenticator() throws SQLException {
+		
+		myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/credentials?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+		
+	}
+	
+	public void generateDevWindow(String username){
+		new DeveloperWindow(username);
+		
+	}
+	public void generateManagerWindow(String username) {
+		
+		 new ProjectManagerWindow(username);
+	}
+	
+	public static boolean authenticate(String username , String password) throws SQLException {
+		
 		PreparedStatement stmt = myConn.prepareStatement("SELECT * FROM credentials WHERE username = ?");
 		stmt.setString(1, username);
 		ResultSet rs = stmt.executeQuery();
@@ -16,12 +31,12 @@ public class Authenticator {
 				System.out.println("Login is successful");
 				System.out.println("Logged in as: " + username);
 				myConn.close();
-				//return true;
+				return true;
 			}else {
 			System.out.println("Login was not successful");
 			System.out.println("Incorrect username/password.");
 			myConn.close();
-			//return false;
+			return false;
 		}
 	}
 }
