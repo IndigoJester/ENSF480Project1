@@ -1,5 +1,8 @@
 import javax.swing.*;
+
+import java.awt.event.MouseAdapter;
 import java.io.*;
+import java.util.EventListener;
 
 public class DefaultWindow {
     protected JList productList, bugList;

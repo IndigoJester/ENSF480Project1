@@ -2,24 +2,25 @@ import javax.swing.*;
 import java.io.*;
 import java.util.EventListener;
 
-public class UpdateDeveloperWindow {
-    private Developer theDeveloper;
-    private JTextField developerStatus, submitUpdate, cancelUpdate;
+public class UpdateProductWindow {
+    private Product theProduct;
+    private JTextField productStatus;
+    private JButton submitUpdate, cancelUpdate;
     private EventListener buttonEventListener;
 
-    public UpdateDeveloperWindow() {
+    public UpdateProductWindow() {
         this.display();
     }
 
     public void display() {
-        // Add the display here.
+        // Display.
     }
 
     private void cancel() {
-        // Cancel.
+        //
     }
 
     private void submit() {
-        // Submit.
+        // 
     }
 }

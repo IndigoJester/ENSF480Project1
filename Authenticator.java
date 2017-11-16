@@ -13,11 +13,11 @@ public class Authenticator {
 		
 	}
 	
-	public void generateDevWindow(String username){
+	public static void generateDevWindow(String username){
 		new DeveloperWindow(username);
 		
 	}
-	public void generateManagerWindow(String username) {
+	public static void generateManagerWindow(String username) {
 		
 		 new ProjectManagerWindow(username);
 	}
@@ -28,6 +28,13 @@ public class Authenticator {
 		stmt.setString(1, username);
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next() && password.equals(rs.getString("password"))) {
+				String userType = rs.getString("userType");
+				if(userType.equals("Developer")) {
+					generateDevWindow(username);
+				}else if (userType.equals("ProjectManager")) {
+					generateManagerWindow(username);
+				}
+				
 				System.out.println("Login is successful");
 				System.out.println("Logged in as: " + username);
 				myConn.close();
