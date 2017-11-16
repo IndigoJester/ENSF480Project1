@@ -31,8 +31,10 @@ public class Authenticator {
 				String userType = rs.getString("userType");
 				if(userType.equals("Developer")) {
 					generateDevWindow(username);
+					System.out.println("Dev window generated");
 				}else if (userType.equals("ProjectManager")) {
 					generateManagerWindow(username);
+					System.out.println("Manageer window generated");
 				}
 				
 				System.out.println("Login is successful");

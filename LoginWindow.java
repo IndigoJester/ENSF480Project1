@@ -1,15 +1,14 @@
 // LoginWindow.java
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
 import java.awt.event.*;
-import java.io.*;
 import java.sql.SQLException;
 
 
 public class LoginWindow {
-    // private static Authenticator anAuthenticator;
+    private static Authenticator anAuthenticator;
+    private JFrame main;
     private JButton loginButton;
     private JButton defaultButton;
     private JTextField username;
@@ -23,7 +22,11 @@ public class LoginWindow {
 		}
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == loginButton) {
-				display.login();
+				try {
+					display.login();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			} else if (e.getSource() == defaultButton) {
 				display.useAsDefault();
 			}
@@ -32,7 +35,7 @@ public class LoginWindow {
 
     public LoginWindow () throws SQLException {
 
-    	// anAuthenticator = new Authenticator();
+    	anAuthenticator = new Authenticator();
         buttonEventListener = new EventListener(this);
         this.display();
     }
@@ -43,7 +46,7 @@ public class LoginWindow {
         Color defaultColor = new Color (54, 51, 51);
 
         // Create Frame
-        JFrame main = new JFrame();
+        main = new JFrame();
 		main.setTitle("RAID Bug Tracking System");
 		main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
 		main.setSize(700, 500);
@@ -104,18 +107,22 @@ public class LoginWindow {
         main.setVisible(true);
     }
 
-    private void login () {
-        System.out.println("Do Login Stuff");
+    private void login () throws SQLException {
+    	String uName = username.getText();
+    	String pass = password.getText();
+    	boolean login = anAuthenticator.authenticate(uName, pass);
+    	if(login) {
+    		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
+    	}
     }
 
     private void useAsDefault () {
-        System.out.println("Open Default Window");
+        new DefaultWindow();
+        System.out.println("Default Window Generated");
+        main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
     public static void main (String[] args) throws SQLException {
         LoginWindow temp = new LoginWindow();
-        // String name = "MNewell";
-        // String password = "password";
-        // boolean login = anAuthenticator.authenticate(name, password);
     }
 }
