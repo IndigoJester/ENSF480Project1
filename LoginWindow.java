@@ -45,7 +45,7 @@ public class LoginWindow {
         // Create Frame
         JFrame main = new JFrame();
 		main.setTitle("RAID Bug Tracking System");
-		// main.setIconImage(new ImageIcon("Icons/Travel.png").getImage());
+		main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
 		main.setSize(700, 500);
 		main.setLocationRelativeTo(null);
 		main.setResizable(false);
