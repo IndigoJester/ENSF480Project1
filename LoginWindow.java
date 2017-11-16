@@ -40,6 +40,11 @@ public class LoginWindow {
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Login.png");
 
+        // Panel to control the display
+        JPanel controlBox = new JPanel();
+        controlBox.setLayout(new BorderLayout());
+        controlBox.setOpaque(false);
+
         //JPanel setup
         JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
@@ -61,7 +66,7 @@ public class LoginWindow {
 		label.setForeground(defaultColor);
 		label.setFont(defaultFont);
 		content.add(label);
-        password = new CustomJPasswordField(60);
+        password = new CustomJPasswordField(40);
         content.add(password);
 
         // Buttons
@@ -69,13 +74,15 @@ public class LoginWindow {
         buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 46, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder (20, 0, 20, 0));
-        loginButton = new JButton("Login");
+        loginButton = new CustomJButton(19, 38, "Login");
         buttonPanel.add(loginButton);
-        defaultButton = new JButton("Default User");
+        defaultButton = new CustomJButton(19, 38, "Default User");
         buttonPanel.add(defaultButton);
 
-        content.add(buttonPanel);
-        background.add("South", content);
+        controlBox.add("Center", content);
+        controlBox.add("South", buttonPanel);
+
+        background.add("South", controlBox);
         main.add(background);
         main.setVisible(true);
     }
