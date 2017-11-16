@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.io.*;
 
-class DefaultWindow {
+public class DefaultWindow {
     protected JList productList, bugList;
     protected Bug[] bugs;
     protected JButton submitBug, refresh;
