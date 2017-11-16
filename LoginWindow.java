@@ -16,9 +16,24 @@ public class LoginWindow {
     private JTextField password;
     private ActionListener buttonEventListener;
 
+    private class EventListener implements ActionListener {
+		LoginWindow display;
+		public EventListener (LoginWindow d) {
+			display = d;
+		}
+		public void actionPerformed (ActionEvent e) {
+			if (e.getSource() == loginButton) {
+				display.login();
+			} else if (e.getSource() == defaultButton) {
+				display.useAsDefault();
+			}
+		}
+	}
+
     public LoginWindow () throws SQLException {
 
     	// anAuthenticator = new Authenticator();
+        buttonEventListener = new EventListener(this);
         this.display();
     }
 
@@ -75,16 +90,26 @@ public class LoginWindow {
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(new EmptyBorder (20, 0, 20, 0));
         loginButton = new CustomJButton(19, 38, "Login");
+        loginButton.addActionListener(buttonEventListener);
         buttonPanel.add(loginButton);
         defaultButton = new CustomJButton(19, 38, "Default User");
+        defaultButton.addActionListener(buttonEventListener);
         buttonPanel.add(defaultButton);
 
+        // Add elements and display
         controlBox.add("Center", content);
         controlBox.add("South", buttonPanel);
-
         background.add("South", controlBox);
         main.add(background);
         main.setVisible(true);
+    }
+
+    private void login () {
+        System.out.println("Do Login Stuff");
+    }
+
+    private void useAsDefault () {
+        System.out.println("Open Default Window");
     }
 
     public static void main (String[] args) throws SQLException {
