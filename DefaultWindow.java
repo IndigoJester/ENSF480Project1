@@ -9,6 +9,10 @@ class DefaultWindow {
     protected EventListener buttonEventListener;
     protected Product activeProduct;
 
+    public DefaultWindow() {
+        this.display();
+    }
+
     public void display() {
         // Add Display Code Here.
     }
