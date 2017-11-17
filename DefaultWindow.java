@@ -230,26 +230,27 @@ public class DefaultWindow {
 	}
 
 	protected void showBugsFrom(Product activeProduct) throws SQLException {
-        // Display the bugs from the product argument
-		bugs.removeAllElements();
-	
-    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
-    	stmt.setString(1, activeProduct.getName());
-		ResultSet rs = stmt.executeQuery();
-		while(rs.next()) {
-			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
-					  rs.getInt("status"), rs.getString("assignedDev"));
-			bugs.add(bug);
-			
+		 // Display the bugs from the product argument
+			bugs.removeAllElements();
+		
+	    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
+	    	stmt.setString(1, activeProduct.getName());
+	    	stmt.setInt(2, 0);
+			ResultSet rs = stmt.executeQuery();
 			DefaultListModel<String> model = new DefaultListModel<String>();
-		    for(Bug b : bugs){
-		         model.addElement(b.getName().toString());
-		    }    
-		    bugList.setModel(model);     
+			while(rs.next()) {
+				Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+						  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+						  rs.getInt("status"), rs.getString("assignedDev"));
+				bugs.add(bug);
+				
+			    for(Bug b : bugs){
+			         model.addElement(b.getName().toString());
+			    }    
+				}
+			bugList.setModel(model);     
 		    bugList.setSelectedIndex(0);
-			}
-		}
+	    }
 
     protected void submitNewBug() throws SQLException {
     	generateBugSubmissionWindow();
@@ -259,6 +260,7 @@ public class DefaultWindow {
     	String uType = "Default";
     	int index = productList.getSelectedIndex();
   		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow(products.get(index), uType);
+  		refresh();
 	}
 
 	protected void refresh() throws SQLException {

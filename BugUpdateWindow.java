@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -46,10 +47,11 @@ public class BugUpdateWindow {
 		}
 	}
 
-    public BugUpdateWindow() throws SQLException{
+    public BugUpdateWindow(Bug aBug) throws SQLException{
 
     	myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
+        theBug = aBug;
         this.display();
     }
 
@@ -83,7 +85,7 @@ public class BugUpdateWindow {
         content.setBorder(new EmptyBorder (0, 50, 0, 50));
 
         // Status Update stuff
-        JLabel label = new JLabel("Status Update:");
+        JLabel label = new JLabel("Bug is fixed:");
         label.setBorder(new EmptyBorder (12, 0, 12, 0));
 		label.setForeground(defaultColor);
 		label.setFont(defaultFont);
@@ -115,7 +117,7 @@ public class BugUpdateWindow {
         cancelUpdate.addActionListener(buttonEventListener);
         buttonPanel.add(cancelUpdate);
 
-        JLabel title = new JLabel("Report A Bug");
+        JLabel title = new JLabel("Update: " + theBug.getName());
         title.setBorder(new EmptyBorder (30, 50, 50, 50));
 		title.setForeground(new Color (0, 0, 0));
 		title.setFont(new Font ("Eras Bold ITC", Font.PLAIN, 40));
@@ -139,14 +141,12 @@ public class BugUpdateWindow {
     	String oldDetails = null;
     	String addToDetails = statusUpdate.getText();
 
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	Calendar cal = Calendar.getInstance();
-    	Date date=new Date();
-    	date=dateFormat.parse(dateFormat.format(cal.getTime()));
-    	String newDetails = dateFormat.format(date) + "-" + addToDetails;
+    	long time = System.currentTimeMillis();
+    	java.sql.Date date = new java.sql.Date(time);
+    	String newDetails = date + "-" + addToDetails;
 
     	PreparedStatement stmt = myConn.prepareStatement("SELECT details FROM bugs WHERE name = ?");
-		stmt.setString(1,"tempName");  //theBug.getName());
+		stmt.setString(1, theBug.getName());  
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			oldDetails = rs.getString("details");
@@ -154,24 +154,28 @@ public class BugUpdateWindow {
 
 		//System.out.println(oldDetails);
 		details = oldDetails +"\n" + newDetails;
+		Blob detailBlob = myConn.createBlob();
+    	detailBlob.setBytes(1, details.getBytes());
 		//System.out.println(details);
 
 		PreparedStatement stmt2 = myConn.prepareStatement("UPDATE bugs SET details = ? WHERE name = ?");
-		stmt2.setString(1, details);
-		stmt2.setString(2, "tempName"); //theBug.getName());
+		stmt2.setBlob(1, detailBlob);
+		stmt2.setString(2, theBug.getName());
 		stmt2.executeUpdate();
 
 		if(fixed.isSelected()) {
 			PreparedStatement stmt3 = myConn.prepareStatement("UPDATE bugs SET status = ? WHERE name = ?");
-			stmt3.setInt(1, 1);
-			stmt3.setString(2, "tempName"); //theBug.getName());
+			stmt3.setInt(1, 2);
+			stmt3.setString(2, theBug.getName());
 			stmt3.executeUpdate();
 		}
 
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-
+    
+    /*
     public static void main (String[] args) throws SQLException {
         BugUpdateWindow temp = new BugUpdateWindow();
     }
+    */
 }

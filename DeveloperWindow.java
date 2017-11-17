@@ -209,7 +209,8 @@ public class DeveloperWindow {
 	}
 
 	private void generateBugUpdateWindow() throws SQLException {
-		BugUpdateWindow bugUpdateWin = new BugUpdateWindow();
+		int index = bugList.getSelectedIndex();
+		BugUpdateWindow bugUpdateWin = new BugUpdateWindow(bugs.get(index));
 		
 	}
 
@@ -320,19 +321,19 @@ public class DeveloperWindow {
     	stmt.setString(1, activeProduct.getName());
     	stmt.setInt(2, 0);
 		ResultSet rs = stmt.executeQuery();
+		DefaultListModel<String> model = new DefaultListModel<String>();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
 					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
 					  rs.getInt("status"), rs.getString("assignedDev"));
 			bugs.add(bug);
 			
-			DefaultListModel<String> model = new DefaultListModel<String>();
 		    for(Bug b : bugs){
 		         model.addElement(b.getName().toString());
 		    }    
-		    bugList.setModel(model);     
-		    bugList.setSelectedIndex(0);
 			}
+		bugList.setModel(model);     
+	    bugList.setSelectedIndex(0);
     }
 
     public static void main (String[] args) throws SQLException {

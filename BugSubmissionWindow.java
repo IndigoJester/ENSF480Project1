@@ -4,13 +4,10 @@ import javax.swing.border.*;
 import java.awt.event.*;
 import java.sql.Blob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class BugSubmissionWindow {
 	private static Connection myConn;
@@ -133,13 +130,8 @@ public class BugSubmissionWindow {
     	Blob detailBlob = myConn.createBlob();
     	detailBlob.setBytes(1, bugDetail.getBytes());
     	
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	Calendar cal = Calendar.getInstance();
-    	System.out.println(cal);
-    	/*
-    	Date date=new Date();
-    	date=dateFormat.parse(dateFormat.format(cal.getTime()));
-    	*/
+    	long time = System.currentTimeMillis();
+    	java.sql.Date date = new java.sql.Date(time);
     	
     	if(userType == "ProjectManager") {
     		
@@ -147,7 +139,7 @@ public class BugSubmissionWindow {
     				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
     		stmt.setString(1, bugTitle); 
     		stmt.setString(2, theProduct.getName()); //theBug.getName());
-    		//stmt.setDate(3, (java.sql.Date) date);
+    		stmt.setDate(3,date);
     		stmt.setInt(4, 1);
     		stmt.setBlob(5, detailBlob);
     		stmt.setInt(6, 1);
@@ -157,7 +149,7 @@ public class BugSubmissionWindow {
     				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
     		stmt2.setString(1, bugTitle); 
     		stmt2.setString(2, theProduct.getName()); //theBug.getName());
-    		//stmt2.setDate(3, (java.sql.Date) date);
+    		stmt2.setDate(3, date);
     		stmt2.setInt(4, 0);
     		stmt2.setString(5, bugDetail);
     		stmt2.setInt(6, 0);

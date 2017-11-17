@@ -2,10 +2,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
 
 public class AddDeveloperWindow {
+	private static Connection myConn1, myConn2;
     private JFrame main;
     private JTextField name, username, password, details;
     private JButton cancelSubmission, submitDev;
@@ -18,14 +22,20 @@ public class AddDeveloperWindow {
 		}
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submitDev) {
-                display.addNewDeveloper();
+                try {
+					display.addNewDeveloper();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			} else if (e.getSource() == cancelSubmission) {
                 display.cancelSubmission();
 			}
 		}
 	}
 
-    public AddDeveloperWindow() {
+    public AddDeveloperWindow() throws SQLException {
+    	myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/developer?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/credentials?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
         this.display();
     }
@@ -43,7 +53,7 @@ public class AddDeveloperWindow {
 		main.setLocationRelativeTo(null);
 		main.setResizable(false);
 		main.setLayout(new BorderLayout());
-        main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        main.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Extras.png");
@@ -135,15 +145,40 @@ public class AddDeveloperWindow {
         main.setVisible(true);
     }
 
-    private void addNewDeveloper() {
+    private void addNewDeveloper() throws SQLException {
         // Add a new developer.
+    	String nameNew = name.getText();
+    	String uName = username.getText();
+    	String pass = password.getText();
+    	String detail = details.getText();
+    	Blob detailBlob = myConn1.createBlob();
+    	detailBlob.setBytes(1, detail.getBytes());
+    	
+    	PreparedStatement stmt = myConn1.prepareStatement("INSERT INTO developers (name, username, password, details)" + 
+    	"VALUES(?, ?, ?, ?)");
+		stmt.setString(1, nameNew); 
+		stmt.setString(2,uName ); //theBug.getName());
+		stmt.setString(3, pass);
+		stmt.setBlob(4, detailBlob);
+		stmt.executeUpdate();
+		
+		PreparedStatement stmt2 = myConn2.prepareStatement("INSERT INTO credentials (username, password, userType)" + 
+		    	"VALUES(?, ?, ?)");
+				stmt2.setString(1,uName ); //theBug.getName());
+				stmt2.setString(2, pass);
+				stmt2.setString(3, "Developer");
+				stmt2.executeUpdate();
+		
+		
+		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-
     private void cancelSubmission() {
         // Cancel the Submission.
+    	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-
+    /*
     public static void main (String[] args) throws SQLException {
         AddDeveloperWindow temp = new AddDeveloperWindow();
     }
+    */
 }

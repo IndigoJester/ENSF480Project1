@@ -1,9 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
 import java.awt.event.*;
-import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,7 +10,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class ProjectManagerWindow {
-	private static Connection myConn1, myConn2, myConn3;
+	private static Connection myConn1, myConn2, myConn3, myConn4;
 	private JButton removeFixedBug;
 	private JButton rejectBug;
 	private JButton approveBug;
@@ -71,9 +69,17 @@ public class ProjectManagerWindow {
 					e1.printStackTrace();
 				}
             } else if (e.getSource() == assignBug) {
-                display.assignBugToDev();
+                try {
+					display.assignBugToDev();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == addDeveloper) {
-                display.addDev();
+                try {
+					display.addDev();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == removeDeveloper) {
                 try {
 					display.removeDev();
@@ -81,9 +87,17 @@ public class ProjectManagerWindow {
 					e1.printStackTrace();
 				}
             } else if (e.getSource() == updateDeveloper) {
-                display.updateDev();
+                try {
+					display.updateDev();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == addProduct) {
-                display.addNewProduct();
+                try {
+					display.addNewProduct();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == removeProduct) {
                 try {
 					display.removeAProduct();
@@ -91,7 +105,11 @@ public class ProjectManagerWindow {
 					e1.printStackTrace();
 				}
             } else if (e.getSource() == updateProduct) {
-                display.updateAProduct();
+                try {
+					display.updateAProduct();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             }
         }
     }
@@ -99,6 +117,7 @@ public class ProjectManagerWindow {
 		myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	myConn3 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/developer?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	myConn4 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/credentials?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
         managerName = username;
         this.display();
@@ -163,7 +182,11 @@ public class ProjectManagerWindow {
                     // Double-click detected
                     int index = developerList.locationToIndex(evt.getPoint());
                     Developer get = developers.get(index);
-                    viewDeveloper(get);
+                    try {
+						viewDeveloper(get);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
                 }
             }
         });
@@ -219,7 +242,11 @@ public class ProjectManagerWindow {
                     // Double-click detected
                     int index = productList.locationToIndex(evt.getPoint());
                     Product get = products.get(index);
-                    viewProduct(get);
+                    try {
+						viewProduct(get);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
                 }
             }
         });
@@ -324,6 +351,7 @@ public class ProjectManagerWindow {
     	String uType = "ProjectManager";
     	int index = productList.getSelectedIndex();
   		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow(products.get(index), uType);
+  		refresh();
   	}
 
     protected void refresh() throws SQLException {
@@ -394,33 +422,35 @@ public class ProjectManagerWindow {
 
     protected void showBugsFrom(Product activeProduct) throws SQLException {
    	 // Display the bugs from the product argument
-		bugs.removeAllElements();
-	
-   	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
-   	stmt.setString(1, activeProduct.getName());
-		ResultSet rs = stmt.executeQuery();
-		while(rs.next()) {
-			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
-					  rs.getInt("status"), rs.getString("assignedDev"));
-			bugs.add(bug);
-			
-			DefaultListModel<String> model = new DefaultListModel<String>();
-		    for(Bug b : bugs){
-		         model.addElement(b.getName().toString());
-		    }    
-		    bugList.setModel(model);     
-		    bugList.setSelectedIndex(0);
-			}
-   }
-    protected void viewProduct(Product theProduct) {
+   		bugs.removeAllElements();
+   	
+       	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
+       	stmt.setString(1, activeProduct.getName());
+       	stmt.setInt(2, 0);
+   		ResultSet rs = stmt.executeQuery();
+   		DefaultListModel<String> model = new DefaultListModel<String>();
+   		while(rs.next()) {
+   			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+   					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+   					  rs.getInt("status"), rs.getString("assignedDev"));
+   			bugs.add(bug);
+   			
+   		    for(Bug b : bugs){
+   		         model.addElement(b.getName().toString());
+   		    }    
+   			}
+   		bugList.setModel(model);     
+   	    bugList.setSelectedIndex(0);
+       }
+    protected void viewProduct(Product theProduct) throws SQLException {
         // View the Product
     	generateProductInfoWindow();
     	System.out.println(theProduct.getName());
     }
     
-    private void generateProductInfoWindow() {
+    private void generateProductInfoWindow() throws SQLException {
     	ProductInfoWindow newWin = new ProductInfoWindow();
+    	refresh();
 	}
     
     protected void viewBug(Bug theBug) {
@@ -433,22 +463,28 @@ public class ProjectManagerWindow {
     	BugInfoWindow newWin = new BugInfoWindow();
 	}
     
-    protected void viewDeveloper(Developer theDeveloper) {
+    protected void viewDeveloper(Developer theDeveloper) throws SQLException {
         // View the Product
     	generateDeveloperInfoWindow();
     	System.out.println(theDeveloper.getName());
     }
     
-    private void generateDeveloperInfoWindow() {
+    private void generateDeveloperInfoWindow() throws SQLException {
     	DeveloperInfoWindow newWin = new DeveloperInfoWindow();
+    	refresh();
 	}
     
     private void removeBug () throws SQLException {
     	int index = bugList.getSelectedIndex();
-    	
+    	if(bugs.get(index).getStatus() == 2) {
+    		
         PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
       	stmt.setString(1, bugs.get(index).getName());
     	int rs = stmt.executeUpdate();
+    	}else {
+    		JOptionPane.showMessageDialog(null, "Selected bug has not been fixed!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+    	}
   		refresh();
     }
 
@@ -468,10 +504,10 @@ public class ProjectManagerWindow {
     private void approveBugReport () throws SQLException {
     	int index = bugList.getSelectedIndex();
     	if(bugs.get(index).getStatus() == 0) {
-    		  PreparedStatement stmt = myConn1.prepareStatement("UPDATE bugs set status = ? where first_name = ?");
+    		  PreparedStatement stmt = myConn1.prepareStatement("UPDATE bugs set status = ? where name = ?");
     	      stmt.setInt(1, 1);
     		  stmt.setString(2, bugs.get(index).getName());
-    	  	  ResultSet rs = stmt.executeQuery();
+    	  	  int rs = stmt.executeUpdate();
     	  	  bugs.get(index).setStatus(1);
     	  	  refresh();
     	}else {
@@ -480,16 +516,29 @@ public class ProjectManagerWindow {
     	}
     }
 
-    private void assignBugToDev () {
+    private void assignBugToDev () throws SQLException {
+    	int index1 = bugList.getSelectedIndex();
+    	int index2 = developerList.getSelectedIndex();
     	
+    	if(bugs.get(index1).getStatus() == 1 || bugs.get(index1).getStatus() == 2) {
+    		  PreparedStatement stmt = myConn1.prepareStatement("UPDATE bugs set assignedDev = ? where name = ?");
+    	      stmt.setString(1, developers.get(index2).getUsername());
+    		  stmt.setString(2, bugs.get(index1).getName());
+    	  	  int rs = stmt.executeUpdate();
+    	  	  refresh();
+    	}else {
+    		JOptionPane.showMessageDialog(null, "Cannot assign a dev to a already assigned or fixed bug!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+    	}	
     }
     
-	private void addDev () {
+	private void addDev () throws SQLException {
 		generateAddDevWindow();
     }
 
-    private void generateAddDevWindow() {
+    private void generateAddDevWindow() throws SQLException {
 		AddDeveloperWindow addDevWindow = new AddDeveloperWindow();
+		refresh();
 	}
 
 	private void removeDev () throws SQLException {
@@ -498,23 +547,29 @@ public class ProjectManagerWindow {
         PreparedStatement stmt = myConn3.prepareStatement("DELETE FROM developers Where name = ?");
       	stmt.setString(1, developers.get(index).getName());
       	int rs = stmt.executeUpdate();
+      		
+      	PreparedStatement stmt2 = myConn4.prepareStatement("DELETE FROM credentials Where username = ?");
+       	stmt2.setString(1, developers.get(index).getUsername());
+       	int rs2 = stmt2.executeUpdate();
   		refresh();	
     }
 
-    private void updateDev () {
+    private void updateDev () throws SQLException {
     	generateUpdateDevWindow();
     }
 
-    private void generateUpdateDevWindow() {
+    private void generateUpdateDevWindow() throws SQLException {
 		UpdateDeveloperWindow updateDevWindow = new UpdateDeveloperWindow();
+		refresh();
 	}
 
-	private void addNewProduct () {
+	private void addNewProduct () throws SQLException {
 		generateAddNewProductWindow();
     }
 
-    private void generateAddNewProductWindow() {
+    private void generateAddNewProductWindow() throws SQLException {
 		AddProductWindow addProductWindow = new AddProductWindow();
+		refresh();
 	}
 
 	private void removeAProduct () throws SQLException {
@@ -530,16 +585,19 @@ public class ProjectManagerWindow {
   		refresh();
     }
 
-    private void updateAProduct () {
-    	generateUpdateProductWindow();
+    private void updateAProduct () throws SQLException {
+    	int index = productList.getSelectedIndex();
+    	generateUpdateProductWindow(products.get(index));
     }
 
-    private void generateUpdateProductWindow() {
-		UpdateProductWindow updateProductWindow = new UpdateProductWindow();
-		
+    private void generateUpdateProductWindow(Product aProduct) throws SQLException {
+		UpdateProductWindow updateProductWindow = new UpdateProductWindow(aProduct);
+		refresh();
 	}
-
+    
+    /*
 	public static void main (String[] args) throws SQLException {
         ProjectManagerWindow temp = new ProjectManagerWindow("ManagerName");
     }
+    */
 }

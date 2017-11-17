@@ -2,9 +2,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class AddProductWindow {
+	private static Connection myConn;
     private JFrame main;
     private JTextField name, details;
     private JButton submit, cancel;
@@ -17,14 +22,19 @@ public class AddProductWindow {
 		}
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submit) {
-                display.submit();
+                try {
+					display.submit();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			} else if (e.getSource() == cancel) {
                 display.cancel();
 			}
 		}
 	}
 
-    public AddProductWindow () {
+    public AddProductWindow () throws SQLException {
+    	myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
         this.display();
     }
@@ -42,7 +52,7 @@ public class AddProductWindow {
 		main.setLocationRelativeTo(null);
 		main.setResizable(false);
 		main.setLayout(new BorderLayout());
-        main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        main.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Extras.png");
@@ -103,14 +113,31 @@ public class AddProductWindow {
     }
 
     private void cancel() {
-        System.out.println("cancel submission");
+    	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
-    private void submit() {
-        System.out.println("submit");
+    private void submit() throws SQLException {
+    	String productName = name.getText();
+    	String productInfo = details.getText();
+    	Blob detailBlob = myConn.createBlob();
+    	detailBlob.setBytes(1, productInfo.getBytes());
+    	
+    	long time = System.currentTimeMillis();
+    	java.sql.Date date = new java.sql.Date(time);
+    	
+    	PreparedStatement stmt = myConn.prepareStatement("INSERT INTO products (name, created, numberOfBugs, details)" + 
+    	"VALUES(?, ?, ?, ?)");
+		stmt.setString(1, productName); 
+		stmt.setDate(2,date ); //theBug.getName());
+		stmt.setInt(3, 0);
+		stmt.setBlob(4, detailBlob);
+		stmt.executeUpdate();
+		
+		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-
+    /*
     public static void main (String[] args) throws SQLException {
         AddProductWindow temp = new AddProductWindow();
     }
+    */
 }
