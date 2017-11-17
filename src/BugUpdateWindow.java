@@ -165,7 +165,7 @@ public class BugUpdateWindow {
 		stmt2.executeUpdate();
 
 		if(fixed.isSelected()) {
-			PreparedStatement stmt3 = myConn.prepareStatement("UPDATE bugs SET status = ? AND fixedDate = ? WHERE name = ?");
+			PreparedStatement stmt3 = myConn.prepareStatement("UPDATE bugs SET status = ?, dateFixed = ? WHERE name = ?");
 			stmt3.setInt(1, 2);
 			stmt3.setDate(2, date);
 			stmt3.setString(3, theBug.getName());

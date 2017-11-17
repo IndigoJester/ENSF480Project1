@@ -221,19 +221,29 @@ public class DeveloperWindow {
     	stmt.setString(1, developerName);
     	stmt.setInt(2, 0);
 		ResultSet rs = stmt.executeQuery();
+		DefaultListModel<String> model = new DefaultListModel<String>();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getDate("created"), rs.getString("details"), 
 					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
 			bugs.add(bug);
-			
-			DefaultListModel<String> model = new DefaultListModel<String>();
+		}
 		    for(Bug b : bugs){
-		         model.addElement(b.getName().toString());
+		    	String list= b.getName();
+		    	list += "  |  ";
+		    	if(b.getStatus() == 0) {
+		    		list += "REPORTED";
+		    	}else if(b.getStatus() == 1) {
+		    		list += "APPROVED";
+		    	}else {
+		    		list += "FIXED";
+		    	}
+		    	list += "  |  ";
+		    	list += b.getProduct();
+		         model.addElement(list);
 		    }    
-		    bugList.setModel(model);     
-		    bugList.setSelectedIndex(0);
-			}
+		bugList.setModel(model);     
+	    bugList.setSelectedIndex(0);
 	}
 
     protected void submitNewBug() throws SQLException {
@@ -260,13 +270,24 @@ public class DeveloperWindow {
   		ResultSet rs = stmt.executeQuery();
   		while(rs.next()) {
   			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-  					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+  					  rs.getDate("created"), rs.getString("details"), 
   					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
   			bugs.add(bug);
   			
   			DefaultListModel<String> model = new DefaultListModel<String>();
   		    for(Bug b : bugs){
-  		         model.addElement(b.getName().toString());
+  		  	String list= b.getName();
+	    	list += "  |  ";
+	    	if(b.getStatus() == 0) {
+	    		list += "REPORTED";
+	    	}else if(b.getStatus() == 1) {
+	    		list += "APPROVED";
+	    	}else {
+	    		list += "FIXED";
+	    	}
+	    	list += "  |  ";
+	    	list += b.getProduct();
+	         model.addElement(list);
   		    }    
   		    bugList.setModel(model);     
   		    bugList.setSelectedIndex(0);
@@ -285,7 +306,10 @@ public class DeveloperWindow {
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Product p : products){
-			         model.addElement(p.getName().toString());
+			    	String list= p.getName();
+			    	list += "  |  CREATED: ";
+			    	list += p.getCreated();
+			         model.addElement(list);
 			    }    
 			    productList.setModel(model);     
 			    productList.setSelectedIndex(0);
@@ -323,14 +347,24 @@ public class DeveloperWindow {
 		DefaultListModel<String> model = new DefaultListModel<String>();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getDate("created"), rs.getString("details"), 
 					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
 			bugs.add(bug);
-			
+		}
 		    for(Bug b : bugs){
-		         model.addElement(b.getName().toString());
+		    	String list= b.getName();
+		    	list += "  |  ";
+		    	if(b.getStatus() == 0) {
+		    		list += "REPORTED";
+		    	}else if(b.getStatus() == 1) {
+		    		list += "APPROVED";
+		    	}else {
+		    		list += "FIXED";
+		    	}
+		    	list += "  |  ";
+		    	list += b.getProduct();
+		         model.addElement(list);
 		    }    
-			}
 		bugList.setModel(model);     
 	    bugList.setSelectedIndex(0);
     }

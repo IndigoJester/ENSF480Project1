@@ -365,13 +365,24 @@ public class ProjectManagerWindow {
   		ResultSet rs = stmt.executeQuery();
   		while(rs.next()) {
   			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-  					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+  					  rs.getDate("created"),rs.getString("details"), 
   					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
   			bugs.add(bug);
   			
   			DefaultListModel<String> model = new DefaultListModel<String>();
   		    for(Bug b : bugs){
-  		         model.addElement(b.getName().toString());
+  		  	String list= b.getName();
+	    	list += "  |  ";
+	    	if(b.getStatus() == 0) {
+	    		list += "REPORTED";
+	    	}else if(b.getStatus() == 1) {
+	    		list += "APPROVED";
+	    	}else {
+	    		list += "FIXED";
+	    	}
+	    	list += "  |  ";
+	    	list += b.getProduct();
+	         model.addElement(list);
   		    }    
   		    bugList.setModel(model);     
   		    bugList.setSelectedIndex(0);
@@ -390,7 +401,10 @@ public class ProjectManagerWindow {
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Product p : products){
-			         model.addElement(p.getName().toString());
+			    	String list= p.getName();
+			    	list += "  |  CREATED: ";
+			    	list += p.getCreated();
+			        model.addElement(list);
 			    }    
 			    productList.setModel(model);     
 			    productList.setSelectedIndex(0);
@@ -410,7 +424,10 @@ public class ProjectManagerWindow {
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Developer d : developers){
-			         model.addElement(d.getName().toString());
+			    	String list= d.getName();
+			    	list += "  |  USERNAME: ";
+			    	list += d.getUsername();
+			        model.addElement(list);
 			    }    
 			    developerList.setModel(model);     
 			    developerList.setSelectedIndex(0);
@@ -428,14 +445,24 @@ public class ProjectManagerWindow {
    		DefaultListModel<String> model = new DefaultListModel<String>();
    		while(rs.next()) {
    			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-   					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
-   					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
+   					  rs.getDate("created"),rs.getString("details"),rs.getInt("status"), 
+   					  rs.getString("assignedDev"), rs.getDate("dateFixed"));
    			bugs.add(bug);
-   			
+   		}
    		    for(Bug b : bugs){
-   		         model.addElement(b.getName().toString());
+   		 	String list= b.getName();
+	    	list += "  |  ";
+	    	if(b.getStatus() == 0) {
+	    		list += "REPORTED";
+	    	}else if(b.getStatus() == 1) {
+	    		list += "APPROVED";
+	    	}else {
+	    		list += "FIXED";
+	    	}
+	    	list += "  |  ";
+	    	list += b.getProduct();
+	         model.addElement(list);
    		    }    
-   			}
    		bugList.setModel(model);     
    	    bugList.setSelectedIndex(0);
        }
@@ -491,7 +518,7 @@ public class ProjectManagerWindow {
     	java.sql.Date date = new java.sql.Date(time);
     	
 		try {
-			writer = new PrintWriter("BugReport.txt", "UTF-8");
+			writer = new PrintWriter(bug.getName() + "FixReport.txt", "UTF-8");
 			writer.println("Bug Report:");
 	    	writer.println("Product bug is in: " + bug.getProduct());
 	    	writer.println("The Assigned developer: " + bug.getAssignedDev());
@@ -566,7 +593,13 @@ public class ProjectManagerWindow {
       	PreparedStatement stmt2 = myConn4.prepareStatement("DELETE FROM credentials Where username = ?");
        	stmt2.setString(1, developers.get(index).getUsername());
        	int rs2 = stmt2.executeUpdate();
+  		
+  		PreparedStatement stmt3 = myConn1.prepareStatement("UPDATE bugs SET assignedDev = ? WHERE assignedDev = ?");
+       	stmt3.setString(1, null);
+       	stmt3.setString(2, developers.get(index).getUsername());
+       	int rs3 = stmt3.executeUpdate();
   		refresh();	
+  		
     }
 
     private void updateDev () throws SQLException {

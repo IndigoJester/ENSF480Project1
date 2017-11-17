@@ -47,13 +47,6 @@ public class BugInfoWindow {
 	        JLabel bugName = new JLabel("Bug Name: " + theBug.getName());
 	        JLabel fromProduct = new JLabel("Product Bug is in: " + theBug.getProduct());
 	        JLabel created = new JLabel("Date Created: " + theBug.getCreated());
-	       String approve;
-	        if(theBug.getApproved() == true) {
-	        	approve = "Approved";
-	        }else {
-	        	approve = "Not approved";
-	        }
-	        JLabel approved = new JLabel("Approved status: " + approve);
 	        String stats;
 	        if(theBug.getStatus() == 2) {
 	        	stats = "Fixed";
@@ -65,7 +58,7 @@ public class BugInfoWindow {
 	        JLabel status = new JLabel ("Bug Status: " +stats);
 	        String devel;
 	        if(theBug.getAssignedDev() == null) {
-	        	devel = "NO assigned developer.";
+	        	devel = "No assigned developer.";
 	        }else {
 	        	devel = theBug.getAssignedDev();
 	        }
@@ -85,11 +78,6 @@ public class BugInfoWindow {
 	        created.setForeground(new Color(0, 0, 0));
 			created.setFont(new Font("Britannic Bold", Font.BOLD, 26));
 	        userPanel.add(created);
-	        
-	        approved.setBorder(new EmptyBorder (9, 0, 9, 0));
-	        approved.setForeground(new Color(0, 0, 0));
-			approved.setFont(new Font("Britannic Bold", Font.BOLD, 26));
-	        userPanel.add(approved);
 
 	        status.setBorder(new EmptyBorder (9, 0, 9, 0));
 	        status.setForeground(new Color(0, 0, 0));

@@ -135,24 +135,22 @@ public class BugSubmissionWindow {
     	
     	if(userType == "ProjectManager") {
     		
-    		PreparedStatement stmt = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created, approved,"
-    				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
+    		PreparedStatement stmt = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created,"
+    				+ "details, status) VALUES(?, ?, ?, ?, ?)");
     		stmt.setString(1, bugTitle); 
     		stmt.setString(2, theProduct.getName()); //theBug.getName());
     		stmt.setDate(3,date);
-    		stmt.setInt(4, 1);
-    		stmt.setBlob(5, detailBlob);
-    		stmt.setInt(6, 1);
+    		stmt.setBlob(4, detailBlob);
+    		stmt.setInt(5, 1);
     		stmt.executeUpdate();
     	}else {
-    		PreparedStatement stmt2 = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created, approved,"
-    				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
+    		PreparedStatement stmt2 = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created,"
+    				+ "details, status) VALUES(?, ?, ?, ?, ?)");
     		stmt2.setString(1, bugTitle); 
     		stmt2.setString(2, theProduct.getName()); //theBug.getName());
     		stmt2.setDate(3, date);
-    		stmt2.setInt(4, 0);
-    		stmt2.setString(5, bugDetail);
-    		stmt2.setInt(6, 0);
+    		stmt2.setString(4, bugDetail);
+    		stmt2.setInt(5, 0);
     		stmt2.executeUpdate();	
     	}
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));

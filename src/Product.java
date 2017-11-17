@@ -20,7 +20,7 @@ public class Product {
 		return name;
 	}
 	
-	public void serCreated(Date created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 	

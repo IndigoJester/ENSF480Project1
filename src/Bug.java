@@ -9,12 +9,11 @@ public class Bug {
 	private int status;
 	private String assignedDev;
 	
-	public Bug(String name, String fromProduct, Date created, Boolean approved, 
+	public Bug(String name, String fromProduct, Date created, 
 			   String details, int status,String assignedDev, Date bugFixed) {
 		this.name = name;
 		this.product = fromProduct;
 		this.created = created;
-		this.approved = approved;
 		this.details = details;
 		this.status = status;
 		this.assignedDev = assignedDev;	
@@ -41,14 +40,6 @@ public class Bug {
 	
 	public Date getCreated() {
 		return created;
-	}
-	
-	public void setApproved(Boolean approved) {
-		this.approved = approved;
-	}
-	
-	public Boolean getApproved() {
-		return approved;
 	}
 	
 	public void setDetails(String details) {
