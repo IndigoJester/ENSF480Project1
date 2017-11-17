@@ -25,7 +25,7 @@ public class BugUpdateWindow {
     private ActionListener buttonEventListener;
 	private static Connection myConn;
     public JCheckBox fixed;
-    
+
     private class EventListener implements ActionListener {
 		BugUpdateWindow display;
 		public EventListener (BugUpdateWindow d) {
@@ -45,9 +45,9 @@ public class BugUpdateWindow {
 			}
 		}
 	}
-    
+
     public BugUpdateWindow() throws SQLException{
-    	
+
     	myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
         this.display();
@@ -69,7 +69,7 @@ public class BugUpdateWindow {
         main.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         // Set background image
-        BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Login.png");
+        BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Extras.png");
 
         // Panel to control the display
         JPanel controlBox = new JPanel();
@@ -90,7 +90,7 @@ public class BugUpdateWindow {
 		content.add(label);
          statusUpdate= new CustomJTextField(60);
         content.add(statusUpdate);
-        
+
         //CheckBox
         JPanel checkBoxPanel = new JPanel();
         checkBoxPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 46, 0));
@@ -102,7 +102,7 @@ public class BugUpdateWindow {
 		checkBoxPanel.add(label);
         fixed = new JCheckBox();
         checkBoxPanel.add(fixed);
-        
+
         // Buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 46, 0));
@@ -115,7 +115,13 @@ public class BugUpdateWindow {
         cancelUpdate.addActionListener(buttonEventListener);
         buttonPanel.add(cancelUpdate);
 
+        JLabel title = new JLabel("Report A Bug");
+        title.setBorder(new EmptyBorder (30, 50, 50, 50));
+		title.setForeground(new Color (0, 0, 0));
+		title.setFont(new Font ("Eras Bold ITC", Font.PLAIN, 40));
+
         // Add elements and display
+        background.add("North", title);
         controlBox.add("North", content);
         controlBox.add("Center", checkBoxPanel);
         controlBox.add("South", buttonPanel);
@@ -124,7 +130,7 @@ public class BugUpdateWindow {
         main.setVisible(true);
     }
     private void cancel() {
-    	
+
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
@@ -132,41 +138,40 @@ public class BugUpdateWindow {
     	String details = null;
     	String oldDetails = null;
     	String addToDetails = statusUpdate.getText();
-    	
+
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     	Calendar cal = Calendar.getInstance();
     	Date date=new Date();
     	date=dateFormat.parse(dateFormat.format(cal.getTime()));
     	String newDetails = dateFormat.format(date) + "-" + addToDetails;
-    	
+
     	PreparedStatement stmt = myConn.prepareStatement("SELECT details FROM bugs WHERE name = ?");
 		stmt.setString(1,"tempName");  //theBug.getName());
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			oldDetails = rs.getString("details");
 		}
-		
+
 		//System.out.println(oldDetails);
 		details = oldDetails +"\n" + newDetails;
 		//System.out.println(details);
-		
+
 		PreparedStatement stmt2 = myConn.prepareStatement("UPDATE bugs SET details = ? WHERE name = ?");
-		stmt2.setString(1, details); 
+		stmt2.setString(1, details);
 		stmt2.setString(2, "tempName"); //theBug.getName());
 		stmt2.executeUpdate();
-		
+
 		if(fixed.isSelected()) {
 			PreparedStatement stmt3 = myConn.prepareStatement("UPDATE bugs SET status = ? WHERE name = ?");
-			stmt3.setInt(1, 1); 
+			stmt3.setInt(1, 1);
 			stmt3.setString(2, "tempName"); //theBug.getName());
 			stmt3.executeUpdate();
 		}
-		
+
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-    
+
     public static void main (String[] args) throws SQLException {
         BugUpdateWindow temp = new BugUpdateWindow();
     }
 }
-
