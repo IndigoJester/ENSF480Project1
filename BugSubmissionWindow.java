@@ -9,20 +9,32 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.ParseException;
 
+// BugSubmissionWindow Class
 public class BugSubmissionWindow {
+    // Connection to the mySQL database
 	private static Connection myConn;
+    // Main JFrame for the window
     private JFrame main;
+    // Type of User
     private String userType;
+    // TextFields for the Title and Bug Details
     private JTextField bugDetails, title;
+    // Buttons for Submitting and Cancel Submission of new Bugs
     private JButton cancelSubmission, submitBug;
+    // Product for which the Bug is For.
     private Product theProduct;
+    // A Button Event Listener
     private ActionListener buttonEventListener;
 
+    // Inner Event Listener Class
     private class EventListener implements ActionListener {
+        // Display
 		BugSubmissionWindow display;
+        // Constructor
 		public EventListener (BugSubmissionWindow d) {
 			display = d;
 		}
+        // Action Performed Function
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submitBug) {
 				try {
@@ -37,7 +49,8 @@ public class BugSubmissionWindow {
 			}
 		}
 	}
-    
+
+    // BugSubmissionWindow Constructor
     public BugSubmissionWindow(Product product,String uType) throws SQLException {
     	myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         theProduct = product;
@@ -46,6 +59,7 @@ public class BugSubmissionWindow {
         this.display();
     }
 
+    // Displays the Window
     public void display () {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -119,25 +133,26 @@ public class BugSubmissionWindow {
         main.setVisible(true);
     }
 
+    // Canels Submission
     private void cancel() {
-    	
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
+    // Submits the Bug
     private void submit(String userType) throws ParseException, SQLException {
     	String bugTitle = title.getText();
     	String bugDetail = bugDetails.getText();
     	Blob detailBlob = myConn.createBlob();
     	detailBlob.setBytes(1, bugDetail.getBytes());
-    	
+
     	long time = System.currentTimeMillis();
     	java.sql.Date date = new java.sql.Date(time);
-    	
+
     	if(userType == "ProjectManager") {
-    		
+
     		PreparedStatement stmt = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created, approved,"
     				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
-    		stmt.setString(1, bugTitle); 
+    		stmt.setString(1, bugTitle);
     		stmt.setString(2, theProduct.getName()); //theBug.getName());
     		stmt.setDate(3,date);
     		stmt.setInt(4, 1);
@@ -147,20 +162,14 @@ public class BugSubmissionWindow {
     	}else {
     		PreparedStatement stmt2 = myConn.prepareStatement("INSERT INTO bugs (name, fromProduct, created, approved,"
     				+ "details, status) VALUES(?, ?, ?, ?, ?, ?)");
-    		stmt2.setString(1, bugTitle); 
+    		stmt2.setString(1, bugTitle);
     		stmt2.setString(2, theProduct.getName()); //theBug.getName());
     		stmt2.setDate(3, date);
     		stmt2.setInt(4, 0);
     		stmt2.setString(5, bugDetail);
     		stmt2.setInt(6, 0);
-    		stmt2.executeUpdate();	
+    		stmt2.executeUpdate();
     	}
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-/*
-    public static void main (String[] args) throws SQLException {
-        Product tempProd = new Product("Temp", new Date(2017, 12, 1), 10, "String details");
-        BugSubmissionWindow temp = new BugSubmissionWindow(tempProd);
-    }
-    */
 }
