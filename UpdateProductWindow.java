@@ -13,19 +13,30 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+//The window used to update the  info on the data base.
 public class UpdateProductWindow {
+	//Connection to the database
 	private static Connection myConn;
+	//The main frame used in the window
 	private JFrame main;
+	//The product that we are going to update
     private Product theProduct;
+    //Textfield which is used to get the new updated details on the product
     private JTextField newDetails;
+    //The buttons used to submit the inputted info and to cancel your submission
     private JButton submitUpdate, cancelUpdate;
+    //EventListener which is used to listen for button events.
     private EventListener buttonEventListener;
     
+    //Class which listens for button events
     private class EventListener implements ActionListener {
+    	//the current instance of the display
     	UpdateProductWindow display;
+    	//constructor sets the current display
     	public EventListener (UpdateProductWindow d) {
     		display = d;
     	}
+    	//Tracks the button presses and includes the logic
     	public void actionPerformed (ActionEvent e) {
     		if (e.getSource() == submitUpdate) {
     			try {
@@ -39,6 +50,7 @@ public class UpdateProductWindow {
     	}
     }
 
+    //Constructor for this class
     public UpdateProductWindow(Product aProduct) throws SQLException {
     	myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	buttonEventListener = new EventListener(this);
@@ -47,6 +59,7 @@ public class UpdateProductWindow {
         
     }
     
+    //The display/GUI code
     public void display() {
         // Display.
     	 // Set up display defaults
@@ -78,7 +91,7 @@ public class UpdateProductWindow {
         content.setBorder(new EmptyBorder (80, 50, 80, 50));
 
         // Status Update stuff
-        JLabel label = new JLabel("New Detials:");
+        JLabel label = new JLabel("New Details:");
         label.setBorder(new EmptyBorder (12, 0, 12, 0));
 		label.setForeground(defaultColor);
 		label.setFont(defaultFont);
@@ -112,12 +125,13 @@ public class UpdateProductWindow {
         main.add(background);
         main.setVisible(true);
     }
-
+    //Funciton will cancel the submission and close the window
     private void cancel() {
     	
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
+    //funciton will submit the page and update the vectors and the info in the database
     private void submit() throws SQLException {
     	String details = newDetails.getText();
     	Blob detailBlob = myConn.createBlob();

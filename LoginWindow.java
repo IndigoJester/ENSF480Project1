@@ -5,21 +5,32 @@ import javax.swing.border.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 
-
+//THe window which is used to log in
 public class LoginWindow {
+	//an instance of an authenticator which checks your inputted credentials
     private static Authenticator anAuthenticator;
+   //The main frame used in the window
     private JFrame main;
+    //Button which is used to login
     private JButton loginButton;
+    //Button which is used to generate a defualt window
     private JButton defaultButton;
+    //Textfield to enter your username into
     private JTextField username;
+    //Custom textfield used to write your password into
     private JTextField password;
+    //EventListener which is used to listen for button events
     private ActionListener buttonEventListener;
 
+    //Class which listens for button events
     private class EventListener implements ActionListener {
-		LoginWindow display;
+		//current instance of the display
+    	LoginWindow display;
+    	//constructor which sets the current display
 		public EventListener (LoginWindow d) {
 			display = d;
 		}
+		//Track the button presses and includes the logic
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == loginButton) {
 				try {
@@ -36,7 +47,8 @@ public class LoginWindow {
 			}
 		}
 	}
-
+    
+    //Constructor which creates an instance of authenticator and display
     public LoginWindow () throws SQLException {
 
     	anAuthenticator = new Authenticator();
@@ -44,6 +56,7 @@ public class LoginWindow {
         this.display();
     }
 
+    //The code for the window/GUI
     private void display () {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -110,7 +123,7 @@ public class LoginWindow {
         main.add(background);
         main.setVisible(true);
     }
-
+    //The funciton which calls authenticator and checks if the inputted credentials are correct
     private void login () throws SQLException {
     	String uName = username.getText();
     	String pass = password.getText();
@@ -120,16 +133,15 @@ public class LoginWindow {
     	}else {
     		 JOptionPane.showMessageDialog(null, "Incorrect Username and/or Password", "Error",
                      JOptionPane.ERROR_MESSAGE);
-    		new LoginWindow();
     	}
     }
-
+    //Function which creates a instance of a defaul window
     private void useAsDefault () throws SQLException {
         DefaultWindow dWindow = new DefaultWindow();
         System.out.println("Default Window Generated");
         main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-
+    //Main for the entire program
     public static void main (String[] args) throws SQLException {
         LoginWindow temp = new LoginWindow();
     }

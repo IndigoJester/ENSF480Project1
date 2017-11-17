@@ -2,15 +2,21 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-
+//The window used by the project manager
 public class ProjectManagerWindow {
+	//Database connections
 	private static Connection myConn1, myConn2, myConn3, myConn4;
+	//Follwing are buttons used to compute/submit the changes 
+	//To the database and vectors
 	private JButton removeFixedBug;
 	private JButton rejectBug;
 	private JButton approveBug;
@@ -21,22 +27,33 @@ public class ProjectManagerWindow {
 	private JButton addProduct;
 	private JButton removeProduct;
 	private JButton updateProduct;
+	//Vector of the developers and their info from the database
 	private Vector<Developer> developers;
+	//List of developers in the gui
 	private JList developerList;
+	//username of the project manager
 	private String managerName;
+	//Lists of the products and bugs in the GUI
     protected JList<String> productList, bugList;
+    //vector of all the bugs and their info from the database
     protected Vector<Bug> bugs;
+   //Vector of all the products and their info from the database
     protected Vector<Product> products;
+   //Buttons used to submit the GUI info and refres the GUI
     protected JButton submitBug, refresh;
+    //Mouse adapter used to listen for mouse events
     protected MouseAdapter mouseEventListener;
     protected ActionListener buttonEventListener;
     protected Product activeProduct;
-
+    //Eventlistener which listens for button events
     private class EventListener implements ActionListener {
-        ProjectManagerWindow display;
-        public EventListener (ProjectManagerWindow d) {
+        //The current instance of the display
+    	ProjectManagerWindow display;
+    	//Constructor sets the current display
+    	public EventListener (ProjectManagerWindow d) {
             display = d;
         }
+    	//Tracks the button presses and includes the logic
         public void actionPerformed (ActionEvent e) {
             if (e.getSource() == submitBug) {
                 try {
@@ -113,6 +130,7 @@ public class ProjectManagerWindow {
             }
         }
     }
+    //Constructor for the class ProjectManagerWindow
 	public ProjectManagerWindow (String username) throws SQLException {
 		myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
@@ -123,7 +141,7 @@ public class ProjectManagerWindow {
         this.display();
         refresh();
 	}
-	
+	//The display/GUI code
 	public void display () {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -131,7 +149,7 @@ public class ProjectManagerWindow {
 
         // Create Frame
         JFrame main = new JFrame();
-        main.setTitle("RAID Bug Tracking System: Developer");
+        main.setTitle("RAID Bug Tracking System: Project Manager");
         main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
         main.setSize(800, 1000);
         main.setLocationRelativeTo(null);
@@ -180,17 +198,15 @@ public class ProjectManagerWindow {
                 JList developerList = (JList)evt.getSource();
                 if (evt.getClickCount() == 2) {
                     // Double-click detected
-                    int index = developerList.locationToIndex(evt.getPoint());
-                    Developer get = developers.get(index);
                     try {
-						viewDeveloper(get);
+						viewDeveloper();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
                 }
             }
         });
-        developerList.setFont(new Font("Courier", Font.BOLD, 14));
+        developerList.setFont(new Font("Courier", Font.BOLD, 20));
         JScrollPane tempScroll = new JScrollPane(developerList);
         developerList.setBackground(new Color (162, 154, 154));
         devDiv.add(tempScroll);
@@ -242,14 +258,11 @@ public class ProjectManagerWindow {
                     // Double-click detected
                     int index = productList.locationToIndex(evt.getPoint());
                     Product get = products.get(index);
-                    try {
-						viewProduct(get);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
+                    viewProduct(get);
                 }
             }
         });
+        
         productList.setFont(new Font("Courier", Font.BOLD, 20));
         tempScroll = new JScrollPane(productList);
         productList.setBackground(new Color (162, 154, 154));
@@ -342,25 +355,25 @@ public class ProjectManagerWindow {
         main.add(background);
         main.setVisible(true);
 	}
-
+	//Function which calls the window to generate a bug submission
     protected void submitNewBug() throws SQLException {
         generateBugSubmissionWindow();
     }
-    
+    //Function which creates an instance of a bug submission window
     private void generateBugSubmissionWindow() throws SQLException {
     	String uType = "ProjectManager";
     	int index = productList.getSelectedIndex();
   		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow(products.get(index), uType);
   		refresh();
   	}
-
+    //Function whichcalls the functoins needed to refreshes the GUI
     protected void refresh() throws SQLException {
         // Refresh.
     	  getBugs();
           getProducts();
           getDevelopers();
     }
-
+    //Function which gets the bugs from the database
     protected void getBugs() throws SQLException {
     	bugs = new Vector<Bug>();
       	// Get Bugs from the Database
@@ -368,19 +381,30 @@ public class ProjectManagerWindow {
   		ResultSet rs = stmt.executeQuery();
   		while(rs.next()) {
   			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-  					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
-  					  rs.getInt("status"), rs.getString("assignedDev"));
+  					  rs.getDate("created"),rs.getString("details"), 
+  					  rs.getInt("status"), rs.getString("assignedDev"), rs.getDate("dateFixed"));
   			bugs.add(bug);
   			
   			DefaultListModel<String> model = new DefaultListModel<String>();
   		    for(Bug b : bugs){
-  		         model.addElement(b.getName().toString());
+  		  	String list= b.getName();
+	    	list += "  |  ";
+	    	if(b.getStatus() == 0) {
+	    		list += "REPORTED";
+	    	}else if(b.getStatus() == 1) {
+	    		list += "APPROVED";
+	    	}else {
+	    		list += "FIXED";
+	    	}
+	    	list += "  |  ";
+	    	list += b.getProduct();
+	         model.addElement(list);
   		    }    
   		    bugList.setModel(model);     
   		    bugList.setSelectedIndex(0);
   		}
     }
-    
+    //Function which gets the products from the database
     protected void getProducts() throws SQLException {
     	products = new Vector<Product>();
         // Get Products from the Database
@@ -388,18 +412,21 @@ public class ProjectManagerWindow {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
-					rs.getInt("numberOfBugs"),rs.getString("details"));
+					rs.getString("details"));
 			products.add(product);
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Product p : products){
-			         model.addElement(p.getName().toString());
+			    	String list= p.getName();
+			    	list += "  |  CREATED: ";
+			    	list += p.getCreated();
+			        model.addElement(list);
 			    }    
 			    productList.setModel(model);     
 			    productList.setSelectedIndex(0);
 			}
     }
-    
+    //Function which gets the developers from the database
     protected void getDevelopers() throws SQLException {
     	developers = new Vector<Developer>();
         // Get Products from the Database
@@ -413,69 +440,82 @@ public class ProjectManagerWindow {
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Developer d : developers){
-			         model.addElement(d.getName().toString());
+			    	String list= d.getName();
+			    	list += "  |  USERNAME: ";
+			    	list += d.getUsername();
+			        model.addElement(list);
 			    }    
 			    developerList.setModel(model);     
 			    developerList.setSelectedIndex(0);
 			}
     }
-
+    //Funciton gets the bugs of a certain product from the database
     protected void showBugsFrom(Product activeProduct) throws SQLException {
    	 // Display the bugs from the product argument
    		bugs.removeAllElements();
    	
-       	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
+       	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
        	stmt.setString(1, activeProduct.getName());
-       	stmt.setInt(2, 0);
    		ResultSet rs = stmt.executeQuery();
    		DefaultListModel<String> model = new DefaultListModel<String>();
    		while(rs.next()) {
    			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-   					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
-   					  rs.getInt("status"), rs.getString("assignedDev"));
+   					  rs.getDate("created"),rs.getString("details"),rs.getInt("status"), 
+   					  rs.getString("assignedDev"), rs.getDate("dateFixed"));
    			bugs.add(bug);
-   			
+   		}
    		    for(Bug b : bugs){
-   		         model.addElement(b.getName().toString());
+   		 	String list= b.getName();
+	    	list += "  |  ";
+	    	if(b.getStatus() == 0) {
+	    		list += "REPORTED";
+	    	}else if(b.getStatus() == 1) {
+	    		list += "APPROVED";
+	    	}else {
+	    		list += "FIXED";
+	    	}
+	    	list += "  |  ";
+	    	list += b.getProduct();
+	         model.addElement(list);
    		    }    
-   			}
    		bugList.setModel(model);     
    	    bugList.setSelectedIndex(0);
        }
-    protected void viewProduct(Product theProduct) throws SQLException {
-        // View the Product
-    	generateProductInfoWindow();
-    	System.out.println(theProduct.getName());
-    }
-    
-    private void generateProductInfoWindow() throws SQLException {
-    	ProductInfoWindow newWin = new ProductInfoWindow();
-    	refresh();
-	}
-    
+    //Function which call the function to create a new bug info window
     protected void viewBug(Bug theBug) {
         // View the Bug.
-    	generateBugInfoWindow();
-    	System.out.println(theBug.getName());	
+    	int index = bugList.getSelectedIndex();
+    	generateBugInfoWindow(bugs.get(index));
     }
-    
-    private void generateBugInfoWindow() {
-    	BugInfoWindow newWin = new BugInfoWindow();
+    //Function creates an instance of a Bug info window
+    private void generateBugInfoWindow(Bug aBug) {
+    	BugInfoWindow newWin = new BugInfoWindow(aBug);
 	}
-    
-    protected void viewDeveloper(Developer theDeveloper) throws SQLException {
+    //Function which calls the function to create a new product info window
+    protected void viewProduct(Product theProduct) {
         // View the Product
-    	generateDeveloperInfoWindow();
-    	System.out.println(theDeveloper.getName());
+    	int index = productList.getSelectedIndex();
+    	generateProductInfoWindow(products.get(index));
     }
-    
-    private void generateDeveloperInfoWindow() throws SQLException {
-    	DeveloperInfoWindow newWin = new DeveloperInfoWindow();
-    	refresh();
+    //Funciton which creates a new instance of a Product info window
+    private void generateProductInfoWindow(Product aProduct) {
+    	ProductInfoWindow newWin = new ProductInfoWindow(aProduct);
 	}
-    
+    //Function which calls the function which creates an instance of a developer info window
+    protected void viewDeveloper() throws SQLException {
+        // View the Product
+    	int index = developerList.getSelectedIndex();
+    	generateDeveloperInfoWindow(developers.get(index));
+    }
+    //Funciton which creates an instance of a developer info window
+    private void generateDeveloperInfoWindow(Developer aDeveloper) throws SQLException {
+    	DeveloperInfoWindow newWin = new DeveloperInfoWindow(aDeveloper);
+	}
+    //Function which removes a fixed bug from the database
     private void removeBug () throws SQLException {
     	int index = bugList.getSelectedIndex();
+    	generateBugReport(bugs.get(index));
+    	
     	if(bugs.get(index).getStatus() == 2) {
     		
         PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
@@ -487,8 +527,27 @@ public class ProjectManagerWindow {
     	}
   		refresh();
     }
+    //Funciton which will create a text file of the bug report.
+    private void generateBugReport(Bug bug) {
+    	PrintWriter writer;
+    	long time = System.currentTimeMillis();
+    	java.sql.Date date = new java.sql.Date(time);
+    	
+		try {
+			writer = new PrintWriter(bug.getName() + "FixReport.txt", "UTF-8");
+			writer.println("Bug Report:");
+	    	writer.println("Product bug is in: " + bug.getProduct());
+	    	writer.println("The Assigned developer: " + bug.getAssignedDev());
+	    	writer.println("Date bug was created: " + bug.getCreated());
+	    	writer.println("Date the bug was fixed: " +date);
+	    	writer.close();
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}	
+	}
 
-    private void rejectBugReport () throws SQLException {
+    //Function which will reject a submitted bug
+	private void rejectBugReport () throws SQLException {
     	int index = bugList.getSelectedIndex();
     	if(bugs.get(index).getStatus() == 0) {
     		  PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
@@ -500,7 +559,7 @@ public class ProjectManagerWindow {
                     JOptionPane.ERROR_MESSAGE);
     	}
     }
-
+	//function which will approve a submitted bug
     private void approveBugReport () throws SQLException {
     	int index = bugList.getSelectedIndex();
     	if(bugs.get(index).getStatus() == 0) {
@@ -515,7 +574,7 @@ public class ProjectManagerWindow {
                     JOptionPane.ERROR_MESSAGE);
     	}
     }
-
+    //Function which assigns a job/bug to a developer
     private void assignBugToDev () throws SQLException {
     	int index1 = bugList.getSelectedIndex();
     	int index2 = developerList.getSelectedIndex();
@@ -531,16 +590,16 @@ public class ProjectManagerWindow {
                     JOptionPane.ERROR_MESSAGE);
     	}	
     }
-    
+    //Function calls another function which creates an instance of a add dev window
 	private void addDev () throws SQLException {
 		generateAddDevWindow();
     }
-
+	//Funciton generates an instance of a add dev window
     private void generateAddDevWindow() throws SQLException {
 		AddDeveloperWindow addDevWindow = new AddDeveloperWindow();
 		refresh();
 	}
-
+    //Function removes a developer from the database
 	private void removeDev () throws SQLException {
 		int index = developerList.getSelectedIndex();
     	
@@ -551,27 +610,34 @@ public class ProjectManagerWindow {
       	PreparedStatement stmt2 = myConn4.prepareStatement("DELETE FROM credentials Where username = ?");
        	stmt2.setString(1, developers.get(index).getUsername());
        	int rs2 = stmt2.executeUpdate();
+  		
+  		PreparedStatement stmt3 = myConn1.prepareStatement("UPDATE bugs SET assignedDev = ? WHERE assignedDev = ?");
+       	stmt3.setString(1, null);
+       	stmt3.setString(2, developers.get(index).getUsername());
+       	int rs3 = stmt3.executeUpdate();
   		refresh();	
+  		
     }
-
+	//Function calls another function which creates an instance of a update dev window
     private void updateDev () throws SQLException {
-    	generateUpdateDevWindow();
+    	int index = developerList.getSelectedIndex();
+    	generateUpdateDevWindow(developers.get(index));
     }
-
-    private void generateUpdateDevWindow() throws SQLException {
-		UpdateDeveloperWindow updateDevWindow = new UpdateDeveloperWindow();
+    //Funciton creates an instance of the update developer window
+    private void generateUpdateDevWindow(Developer aDeveloper) throws SQLException {
+		UpdateDeveloperWindow updateDevWindow = new UpdateDeveloperWindow(aDeveloper);
 		refresh();
 	}
-
+    //Function calls another function which creates an instance of a add product window
 	private void addNewProduct () throws SQLException {
 		generateAddNewProductWindow();
     }
-
+	//Function creates an instance of a add new product window
     private void generateAddNewProductWindow() throws SQLException {
 		AddProductWindow addProductWindow = new AddProductWindow();
 		refresh();
 	}
-
+    //Function removes a product from the database
 	private void removeAProduct () throws SQLException {
 		int index = productList.getSelectedIndex();
     	
@@ -584,20 +650,14 @@ public class ProjectManagerWindow {
   		int rs2 = stmt2.executeUpdate();
   		refresh();
     }
-
+	//Function calls another function which generates a new update product window
     private void updateAProduct () throws SQLException {
     	int index = productList.getSelectedIndex();
     	generateUpdateProductWindow(products.get(index));
     }
-
+    //Function creates a new instance of the update product window
     private void generateUpdateProductWindow(Product aProduct) throws SQLException {
 		UpdateProductWindow updateProductWindow = new UpdateProductWindow(aProduct);
 		refresh();
 	}
-    
-    /*
-	public static void main (String[] args) throws SQLException {
-        ProjectManagerWindow temp = new ProjectManagerWindow("ManagerName");
-    }
-    */
 }
