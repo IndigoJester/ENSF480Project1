@@ -176,9 +176,4 @@ public class AddDeveloperWindow {
         // Cancel the Submission.
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-    /*
-    public static void main (String[] args) throws SQLException {
-        AddDeveloperWindow temp = new AddDeveloperWindow();
-    }
-    */
 }

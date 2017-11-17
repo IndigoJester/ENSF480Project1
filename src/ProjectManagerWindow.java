@@ -396,7 +396,7 @@ public class ProjectManagerWindow {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
-					rs.getInt("numberOfBugs"),rs.getString("details"));
+					rs.getString("details"));
 			products.add(product);
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
@@ -642,10 +642,4 @@ public class ProjectManagerWindow {
 		UpdateProductWindow updateProductWindow = new UpdateProductWindow(aProduct);
 		refresh();
 	}
-    
-    /*
-	public static void main (String[] args) throws SQLException {
-        ProjectManagerWindow temp = new ProjectManagerWindow("ManagerName");
-    }
-    */
 }

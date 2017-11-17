@@ -155,10 +155,4 @@ public class BugSubmissionWindow {
     	}
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-/*
-    public static void main (String[] args) throws SQLException {
-        Product tempProd = new Product("Temp", new Date(2017, 12, 1), 10, "String details");
-        BugSubmissionWindow temp = new BugSubmissionWindow(tempProd);
-    }
-    */
 }

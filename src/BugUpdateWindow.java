@@ -174,10 +174,4 @@ public class BugUpdateWindow {
 
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-    
-    /*
-    public static void main (String[] args) throws SQLException {
-        BugUpdateWindow temp = new BugUpdateWindow();
-    }
-    */
 }

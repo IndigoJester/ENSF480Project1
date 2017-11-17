@@ -301,7 +301,7 @@ public class DeveloperWindow {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
-					rs.getInt("numberOfBugs"),rs.getString("details"));
+					rs.getString("details"));
 			products.add(product);
 			
 			DefaultListModel<String> model = new DefaultListModel<String>();
@@ -367,9 +367,5 @@ public class DeveloperWindow {
 		    }    
 		bugList.setModel(model);     
 	    bugList.setSelectedIndex(0);
-    }
-
-    public static void main (String[] args) throws SQLException {
-        DeveloperWindow temp = new DeveloperWindow("TestName");
     }
 }

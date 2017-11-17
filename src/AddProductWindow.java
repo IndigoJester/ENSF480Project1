@@ -125,19 +125,13 @@ public class AddProductWindow {
     	long time = System.currentTimeMillis();
     	java.sql.Date date = new java.sql.Date(time);
     	
-    	PreparedStatement stmt = myConn.prepareStatement("INSERT INTO products (name, created, numberOfBugs, details)" + 
-    	"VALUES(?, ?, ?, ?)");
+    	PreparedStatement stmt = myConn.prepareStatement("INSERT INTO products (name, created, details)" + 
+    	"VALUES(?, ?, ?)");
 		stmt.setString(1, productName); 
-		stmt.setDate(2,date ); //theBug.getName());
-		stmt.setInt(3, 0);
-		stmt.setBlob(4, detailBlob);
+		stmt.setDate(2,date ); 
+		stmt.setBlob(3, detailBlob);
 		stmt.executeUpdate();
 		
 		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-    /*
-    public static void main (String[] args) throws SQLException {
-        AddProductWindow temp = new AddProductWindow();
-    }
-    */
 }
