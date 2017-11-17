@@ -41,7 +41,11 @@ public class ProjectManagerWindow {
         }
         public void actionPerformed (ActionEvent e) {
             if (e.getSource() == submitBug) {
-                display.submitNewBug();
+                try {
+					display.submitNewBug();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == refresh) {
                 try {
 					display.refresh();
@@ -312,10 +316,15 @@ public class ProjectManagerWindow {
         main.setVisible(true);
 	}
 
-    protected void submitNewBug() {
-        // Display the Bugs from the product argument
-        System.out.println("working1");
+    protected void submitNewBug() throws SQLException {
+        generateBugSubmissionWindow();
     }
+    
+    private void generateBugSubmissionWindow() throws SQLException {
+    	String uType = "ProjectManager";
+    	int index = productList.getSelectedIndex();
+  		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow(products.get(index), uType);
+  	}
 
     protected void refresh() throws SQLException {
         // Refresh.
@@ -440,12 +449,7 @@ public class ProjectManagerWindow {
         PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
       	stmt.setString(1, bugs.get(index).getName());
     	int rs = stmt.executeUpdate();
-  		if(rs == 1) {
-  			bugs.remove(index);
-  		}else {
-  			JOptionPane.showMessageDialog(null, "Error removing bug!", "Error",
-  	                JOptionPane.ERROR_MESSAGE);
-  		}
+  		refresh();
     }
 
     private void rejectBugReport () throws SQLException {
@@ -454,6 +458,7 @@ public class ProjectManagerWindow {
     		  PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
     	      stmt.setString(1, bugs.get(index).getName());
     	  	int rs = stmt.executeUpdate();
+    	  	refresh();
     	}else {
     		JOptionPane.showMessageDialog(null, "Cannot reject a already approved or fixed bug!", "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -468,6 +473,7 @@ public class ProjectManagerWindow {
     		  stmt.setString(2, bugs.get(index).getName());
     	  	  ResultSet rs = stmt.executeQuery();
     	  	  bugs.get(index).setStatus(1);
+    	  	  refresh();
     	}else {
     		JOptionPane.showMessageDialog(null, "Cannot approve a already approved or fixed bug!", "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -475,13 +481,9 @@ public class ProjectManagerWindow {
     }
 
     private void assignBugToDev () {
-    	generateAssignBugWindow();
+    	
     }
-
-    private void generateAssignBugWindow() {
-		AssignBugWindow assignWindow = new AssignBugWindow();	
-	}
-
+    
 	private void addDev () {
 		generateAddDevWindow();
     }
@@ -496,12 +498,7 @@ public class ProjectManagerWindow {
         PreparedStatement stmt = myConn3.prepareStatement("DELETE FROM developers Where name = ?");
       	stmt.setString(1, developers.get(index).getName());
       	int rs = stmt.executeUpdate();
-  		if(rs == 1) {
-  			developers.remove(index);
-  		}else {
-  			JOptionPane.showMessageDialog(null, "Error removing developer!", "Error",
-                JOptionPane.ERROR_MESSAGE);
-  		}	
+  		refresh();	
     }
 
     private void updateDev () {
@@ -526,12 +523,11 @@ public class ProjectManagerWindow {
         PreparedStatement stmt = myConn2.prepareStatement("DELETE FROM products Where name = ?");
       	stmt.setString(1, products.get(index).getName());
   		int rs = stmt.executeUpdate();
-  		if(rs == 1) {
-    	products.remove(index);	
-  		}else {
-  			JOptionPane.showMessageDialog(null, "Error removing product!", "Error",
-                JOptionPane.ERROR_MESSAGE);
-  		}
+  		
+  		PreparedStatement stmt2 = myConn1.prepareStatement("DELETE FROM bugs Where fromProduct = ?");
+      	stmt2.setString(1, products.get(index).getName());
+  		int rs2 = stmt2.executeUpdate();
+  		refresh();
     }
 
     private void updateAProduct () {

@@ -28,7 +28,11 @@ public class DefaultWindow {
 		}
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submitBug) {
-					display.submitNewBug();
+					try {
+						display.submitNewBug();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
 			} else if (e.getSource() == refresh) {
 				try {
 					display.refresh();
@@ -247,12 +251,14 @@ public class DefaultWindow {
 			}
 		}
 
-    protected void submitNewBug() {
+    protected void submitNewBug() throws SQLException {
     	generateBugSubmissionWindow();
     }
 
-    private void generateBugSubmissionWindow() {
-		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow();
+    private void generateBugSubmissionWindow() throws SQLException {
+    	String uType = "Default";
+    	int index = productList.getSelectedIndex();
+  		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow(products.get(index), uType);
 	}
 
 	protected void refresh() throws SQLException {
