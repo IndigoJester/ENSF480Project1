@@ -28,7 +28,11 @@ public class LoginWindow {
 					e1.printStackTrace();
 				}
 			} else if (e.getSource() == defaultButton) {
-				display.useAsDefault();
+				try {
+					display.useAsDefault();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
@@ -120,7 +124,7 @@ public class LoginWindow {
     	}
     }
 
-    private void useAsDefault () {
+    private void useAsDefault () throws SQLException {
         new DefaultWindow();
         System.out.println("Default Window Generated");
         main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));

@@ -1,6 +1,7 @@
 import java.util.Date;
 
 public class Bug {
+	private String name;
 	private String product;
 	private Date created;
 	private Boolean approved;
@@ -8,8 +9,9 @@ public class Bug {
 	private int status;
 	private String assignedDev;
 	
-	public Bug(String fromProduct, Date created, Boolean approved, 
+	public Bug(String name, String fromProduct, Date created, Boolean approved, 
 			   String details, int status,String assignedDev) {
+		this.name = name;
 		this.product = fromProduct;
 		this.created = created;
 		this.approved = approved;
@@ -18,6 +20,13 @@ public class Bug {
 		this.assignedDev = assignedDev;	
 	}
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
 	public void setProduct(String fromProduct) {
 		this.product = fromProduct;
 	}
