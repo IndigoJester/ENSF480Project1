@@ -11,8 +11,6 @@ public class DeveloperWindow {
 	private JButton updateBug;
 	private JButton browseAssignment;
 	private String developerName;
-
-
     protected JList<String> productList, bugList;
     protected Vector<Bug> bugs;
     protected Vector<Product> products;
@@ -28,9 +26,13 @@ public class DeveloperWindow {
         }
         public void actionPerformed (ActionEvent e) {
             if (e.getSource() == submitBug) {
-                    display.submitNewBug();
+                display.submitNewBug();
             } else if (e.getSource() == refresh) {
                 display.refresh();
+            } else if (e.getSource() == updateBug) {
+                display.updateBugStatus();
+            } else if (e.getSource() == browseAssignment) {
+                display.displayAssignments();
             }
         }
     }
@@ -48,7 +50,7 @@ public class DeveloperWindow {
 
         // Create Frame
         JFrame main = new JFrame();
-        main.setTitle("RAID Bug Tracking System: Default User");
+        main.setTitle("RAID Bug Tracking System: Developer");
         main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
         main.setSize(800, 900);
         main.setLocationRelativeTo(null);
@@ -112,17 +114,35 @@ public class DeveloperWindow {
         contentDiv.add(bugDiv);
 
         // Buttons
+        JPanel manyButtons = new JPanel();
+        manyButtons.setLayout(new GridLayout(0, 1));
+        manyButtons.setOpaque(false);
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 65, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(new EmptyBorder (20, 0, 20, 0));
+        buttonPanel.setBorder(new EmptyBorder (20, 0, 10, 0));
         submitBug = new CustomJButton(19, 38, "Submit New Bug");
         submitBug.addActionListener(buttonEventListener);
         buttonPanel.add(submitBug);
         refresh = new CustomJButton(19, 38, "Refresh Results");
         refresh.addActionListener(buttonEventListener);
         buttonPanel.add(refresh);
-        controlBox.add("South", buttonPanel);
+        updateBug = new CustomJButton(19, 38, "Update This Bug");
+        updateBug.addActionListener(buttonEventListener);
+        buttonPanel.add(updateBug);
+        manyButtons.add(buttonPanel);
+
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 65, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(new EmptyBorder (10, 0, 20, 0));
+        browseAssignment = new CustomJButton(26, 38, "Check My Assignments");
+        browseAssignment.addActionListener(buttonEventListener);
+        buttonPanel.add(browseAssignment);
+        manyButtons.add(buttonPanel);
+
+        controlBox.add("South", manyButtons);
         controlBox.add("Center", contentDiv);
         background.add("North", userPanel);
         background.add("Center", controlBox);
@@ -130,12 +150,12 @@ public class DeveloperWindow {
         main.setVisible(true);
     }
 
-	public void updateBugStatus(Bug activeBug) {
-
+	public void updateBugStatus() {
+        System.out.println("working3");
 	}
 
 	public void displayAssignments() {
-
+        System.out.println("working4");
 	}
 
     protected void submitNewBug() {
@@ -146,6 +166,26 @@ public class DeveloperWindow {
     protected void refresh() {
         // Refresh.
         System.out.println("working2");
+    }
+
+    protected void getBugs() {
+        // Get Bugs from the Database
+    }
+
+    protected void getProjects() {
+        // Get Products from the Database
+    }
+
+    protected void viewBug(Bug theBug) {
+        // View the Bug.
+    }
+
+    protected void viewProduct(Product theProduct) {
+        // View the Product
+    }
+
+    protected void showBugsFrom(Product activeProduct) {
+        // Display thec bugs from the product argument
     }
 
     public static void main (String[] args) throws SQLException {
