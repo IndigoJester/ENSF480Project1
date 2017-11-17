@@ -66,7 +66,7 @@ public class BugUpdateWindow {
 		main.setLocationRelativeTo(null);
 		main.setResizable(false);
 		main.setLayout(new BorderLayout());
-        main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        main.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Login.png");

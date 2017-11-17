@@ -13,7 +13,7 @@ public class Authenticator {
 		
 	}
 	
-	public static void generateDevWindow(String username){
+	public static void generateDevWindow(String username) throws SQLException{
 		DeveloperWindow devWindow = new DeveloperWindow(username);
 		
 	}

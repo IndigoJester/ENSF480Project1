@@ -113,7 +113,7 @@ public class DefaultWindow {
                 }
             }
         });
-        productList.setFont(new Font("Courier", Font.BOLD, 14));
+        productList.setFont(new Font("Courier", Font.BOLD, 20));
         JScrollPane tempScroll = new JScrollPane(productList);
         productList.setBackground(new Color (162, 154, 154));
         productDiv.add(tempScroll);
@@ -141,7 +141,7 @@ public class DefaultWindow {
                 }
             }
         });
-        bugList.setFont(new Font("Courier", Font.BOLD, 14));
+        bugList.setFont(new Font("Courier", Font.BOLD, 20));
         tempScroll = new JScrollPane(bugList);
         bugList.setBackground(new Color (162, 154, 154));
         bugDiv.add(tempScroll);
@@ -212,8 +212,7 @@ public class DefaultWindow {
     }
 
     private void generateBugInfoWindow() {
-    	BugInfoWindow newWin = new BugInfoWindow();
-		
+    	BugInfoWindow newWin = new BugInfoWindow();	
 	}
 
 	protected void viewProduct(Product theProduct) {
@@ -223,8 +222,7 @@ public class DefaultWindow {
     }
 
     private void generateProductInfoWindow() {
-    	ProductInfoWindow newWin = new ProductInfoWindow();
-		
+    	ProductInfoWindow newWin = new ProductInfoWindow();	
 	}
 
 	protected void showBugsFrom(Product activeProduct) throws SQLException {
