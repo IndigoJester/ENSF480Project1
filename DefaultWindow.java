@@ -16,7 +16,6 @@ public class DefaultWindow {
     protected MouseAdapter mouseEventListener;
     protected ActionListener buttonEventListener;
     protected Product activeProduct;
-    protected JLabel username;
 
     private class EventListener implements ActionListener {
 		DefaultWindow display;
@@ -44,7 +43,7 @@ public class DefaultWindow {
 
         // Create Frame
         JFrame main = new JFrame();
-		main.setTitle("RAID Bug Tracking System: Default User");
+		main.setTitle("RAID Bug Tracking System: DefaultUser");
 		main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
 		main.setSize(800, 900);
 		main.setLocationRelativeTo(null);
@@ -63,7 +62,7 @@ public class DefaultWindow {
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         userPanel.setOpaque(false);
-        username = new JLabel("  Default User");
+        JLabel username = new JLabel("  Default User");
         username.setBorder(new EmptyBorder (9, 0, 80, 0));
         username.setForeground(new Color(0, 0, 0));
 		username.setFont(new Font("Britannic Bold", Font.BOLD, 26));
