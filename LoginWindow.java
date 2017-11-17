@@ -113,6 +113,10 @@ public class LoginWindow {
     	boolean login = anAuthenticator.authenticate(uName, pass);
     	if(login) {
     		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
+    	}else {
+    		 JOptionPane.showMessageDialog(null, "Incorrect Username and/or Password", "Error",
+                     JOptionPane.ERROR_MESSAGE);
+    		new LoginWindow();
     	}
     }
 
