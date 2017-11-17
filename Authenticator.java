@@ -17,7 +17,7 @@ public class Authenticator {
 		DeveloperWindow devWindow = new DeveloperWindow(username);
 		
 	}
-	public static void generateManagerWindow(String username) {
+	public static void generateManagerWindow(String username) throws SQLException {
 		
 		 ProjectManagerWindow managerWindow = new ProjectManagerWindow(username);
 	}

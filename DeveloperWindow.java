@@ -212,9 +212,9 @@ public class DeveloperWindow {
 	public void displayAssignments() throws SQLException {
 		bugs.removeAllElements();
 		
-    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE assignedDev = ?  AND  status = ?");
+    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE assignedDev = ?  AND  status != ?");
     	stmt.setString(1, developerName);
-    	stmt.setInt(2, 1);
+    	stmt.setInt(2, 0);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
@@ -248,7 +248,8 @@ public class DeveloperWindow {
     protected void getBugs() throws SQLException {
     	bugs = new Vector<Bug>();
       	// Get Bugs from the Database
-      	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs");
+      	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs Where status != ?");
+      	stmt.setInt(1, 0);
   		ResultSet rs = stmt.executeQuery();
   		while(rs.next()) {
   			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
@@ -309,8 +310,9 @@ public class DeveloperWindow {
     	 // Display the bugs from the product argument
 		bugs.removeAllElements();
 	
-    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
+    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
     	stmt.setString(1, activeProduct.getName());
+    	stmt.setInt(2, 0);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
