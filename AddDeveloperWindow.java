@@ -8,13 +8,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+// The window to add a new developer to the list of developers
 public class AddDeveloperWindow {
+    // Connections to the sql database
 	private static Connection myConn1, myConn2;
+    // The window frame which is displayed
     private JFrame main;
+    // Text feilds for name, username, password, and details of the new developer
     private JTextField name, username, password, details;
+    // Buttons to submit and cancel submission of the developer
     private JButton cancelSubmission, submitDev;
+    // The event listener for the buttons
     private ActionListener buttonEventListener;
 
+    // Implementation of EventListener calls methods based on button clicked
     private class EventListener implements ActionListener {
 		AddDeveloperWindow display;
 		public EventListener (AddDeveloperWindow d) {
@@ -33,6 +40,7 @@ public class AddDeveloperWindow {
 		}
 	}
 
+    // Window constructor establishes connections with sql database and displays window
     public AddDeveloperWindow() throws SQLException {
     	myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/developer?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/credentials?autoReconnect=true&useSSL=false", "root", "Bigpapi");
@@ -40,6 +48,7 @@ public class AddDeveloperWindow {
         this.display();
     }
 
+    // Sets up the window to display correctly
     public void display () {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -145,6 +154,8 @@ public class AddDeveloperWindow {
         main.setVisible(true);
     }
 
+    // Adds the developer to the sql database based on the filled in boxes
+    // Also adds the developer to the credential database so they can log in
     private void addNewDeveloper() throws SQLException {
         // Add a new developer.
     	String nameNew = name.getText();
@@ -153,25 +164,27 @@ public class AddDeveloperWindow {
     	String detail = details.getText();
     	Blob detailBlob = myConn1.createBlob();
     	detailBlob.setBytes(1, detail.getBytes());
-    	
-    	PreparedStatement stmt = myConn1.prepareStatement("INSERT INTO developers (name, username, password, details)" + 
+
+    	PreparedStatement stmt = myConn1.prepareStatement("INSERT INTO developers (name, username, password, details)" +
     	"VALUES(?, ?, ?, ?)");
-		stmt.setString(1, nameNew); 
+		stmt.setString(1, nameNew);
 		stmt.setString(2,uName ); //theBug.getName());
 		stmt.setString(3, pass);
 		stmt.setBlob(4, detailBlob);
 		stmt.executeUpdate();
-		
-		PreparedStatement stmt2 = myConn2.prepareStatement("INSERT INTO credentials (username, password, userType)" + 
+
+		PreparedStatement stmt2 = myConn2.prepareStatement("INSERT INTO credentials (username, password, userType)" +
 		    	"VALUES(?, ?, ?)");
 				stmt2.setString(1,uName ); //theBug.getName());
 				stmt2.setString(2, pass);
 				stmt2.setString(3, "Developer");
 				stmt2.executeUpdate();
-		
-		
+
+
 		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
+
+    // Cancels the submission of the new product
     private void cancelSubmission() {
         // Cancel the Submission.
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));

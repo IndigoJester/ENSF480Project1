@@ -8,13 +8,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+// The window to add a product to the sql database
 public class AddProductWindow {
+    // The connection to the sql database
 	private static Connection myConn;
+    // The window that is displayed
     private JFrame main;
+    // The feilds for the product name and details
     private JTextField name, details;
+    // The buttons to submit and cancel submission of the product
     private JButton submit, cancel;
+    // The listener for the buttons
     private ActionListener buttonEventListener;
 
+    // The event listener to make the buttons call methods
     private class EventListener implements ActionListener {
 		AddProductWindow display;
 		public EventListener (AddProductWindow d) {
@@ -112,32 +119,29 @@ public class AddProductWindow {
         main.setVisible(true);
     }
 
+    // Closes the Window.
     private void cancel() {
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
-    private void submit() throws SQLException {
+    // Submit Button, takes data and submits to sql
+        private void submit() throws SQLException {
     	String productName = name.getText();
     	String productInfo = details.getText();
     	Blob detailBlob = myConn.createBlob();
     	detailBlob.setBytes(1, productInfo.getBytes());
-    	
+
     	long time = System.currentTimeMillis();
     	java.sql.Date date = new java.sql.Date(time);
-    	
-    	PreparedStatement stmt = myConn.prepareStatement("INSERT INTO products (name, created, numberOfBugs, details)" + 
+
+    	PreparedStatement stmt = myConn.prepareStatement("INSERT INTO products (name, created, numberOfBugs, details)" +
     	"VALUES(?, ?, ?, ?)");
-		stmt.setString(1, productName); 
+		stmt.setString(1, productName);
 		stmt.setDate(2,date ); //theBug.getName());
 		stmt.setInt(3, 0);
 		stmt.setBlob(4, detailBlob);
 		stmt.executeUpdate();
-		
+
 		main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
-    /*
-    public static void main (String[] args) throws SQLException {
-        AddProductWindow temp = new AddProductWindow();
-    }
-    */
 }
