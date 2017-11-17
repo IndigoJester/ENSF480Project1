@@ -27,7 +27,7 @@ public class UpdateProductWindow {
     private JButton submitUpdate, cancelUpdate;
     //EventListener which is used to listen for button events.
     private EventListener buttonEventListener;
-    
+
     //Class which listens for button events
     private class EventListener implements ActionListener {
     	//the current instance of the display
@@ -56,9 +56,9 @@ public class UpdateProductWindow {
     	buttonEventListener = new EventListener(this);
     	theProduct = aProduct;
         this.display();
-        
+
     }
-    
+
     //The display/GUI code
     public void display() {
         // Display.
@@ -127,7 +127,7 @@ public class UpdateProductWindow {
     }
     //Funciton will cancel the submission and close the window
     private void cancel() {
-    	
+
     	main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }
 
@@ -136,7 +136,7 @@ public class UpdateProductWindow {
     	String details = newDetails.getText();
     	Blob detailBlob = myConn.createBlob();
     	detailBlob.setBytes(1, details.getBytes());
-    	
+
 		PreparedStatement stmt2 = myConn.prepareStatement("UPDATE products SET details = ? WHERE name = ?");
 		stmt2.setBlob(1, detailBlob);
 		stmt2.setString(2, theProduct.getName());
