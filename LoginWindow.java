@@ -57,7 +57,7 @@ public class LoginWindow {
 		main.setLocationRelativeTo(null);
 		main.setResizable(false);
 		main.setLayout(new BorderLayout());
-        main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        main.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         // Set background image
         BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Login.png");
@@ -125,7 +125,7 @@ public class LoginWindow {
     }
 
     private void useAsDefault () throws SQLException {
-        new DefaultWindow();
+        DefaultWindow dWindow = new DefaultWindow();
         System.out.println("Default Window Generated");
         main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
     }

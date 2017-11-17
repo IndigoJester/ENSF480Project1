@@ -14,12 +14,12 @@ public class Authenticator {
 	}
 	
 	public static void generateDevWindow(String username){
-		new DeveloperWindow(username);
+		DeveloperWindow devWindow = new DeveloperWindow(username);
 		
 	}
 	public static void generateManagerWindow(String username) {
 		
-		 new ProjectManagerWindow(username);
+		 ProjectManagerWindow managerWindow = new ProjectManagerWindow(username);
 	}
 	
 	public static boolean authenticate(String username , String password) throws SQLException {
