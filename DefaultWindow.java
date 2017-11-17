@@ -1,14 +1,18 @@
 // DefaultWindow.java
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.border.*;
 import java.awt.event.*;
-import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 public class DefaultWindow {
+	
+	private static Connection myConn1, myConn2;
     protected JList<String> productList, bugList;
     protected Vector<Bug> bugs;
     protected Vector<Product> products;
@@ -26,14 +30,21 @@ public class DefaultWindow {
 			if (e.getSource() == submitBug) {
 					display.submitNewBug();
 			} else if (e.getSource() == refresh) {
-				display.refresh();
+				try {
+					display.refresh();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
 
-    public DefaultWindow() {
-        buttonEventListener = new EventListener(this);
+    public DefaultWindow() throws SQLException {
+    	myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	buttonEventListener = new EventListener(this);
         this.display();
+        refresh();
     }
 
     public void display() {
@@ -83,6 +94,25 @@ public class DefaultWindow {
 		label.setFont(defaultFont);
 		productDiv.add(label);
         productList = new JList();
+        productList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList productList = (JList)evt.getSource();
+                if(evt.getClickCount() == 1) {
+                	int index = productList.locationToIndex(evt.getPoint());
+                	try {
+						showBugsFrom(products.get(index));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+                }
+                if (evt.getClickCount() == 2) {
+                    // Double-click detected
+                    int index = productList.locationToIndex(evt.getPoint());
+                    Product get = products.get(index);
+                    viewProduct(get);
+                }
+            }
+        });
         productList.setFont(new Font("Courier", Font.BOLD, 14));
         JScrollPane tempScroll = new JScrollPane(productList);
         productList.setBackground(new Color (162, 154, 154));
@@ -100,6 +130,17 @@ public class DefaultWindow {
 		label.setFont(defaultFont);
 		bugDiv.add(label);
         bugList = new JList();
+        bugList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList bugList = (JList)evt.getSource();
+                if (evt.getClickCount() == 2) {
+                    // Double-click detected
+                    int index = bugList.locationToIndex(evt.getPoint());
+                    Bug get = bugs.get(index);
+                    viewBug(get);
+                }
+            }
+        });
         bugList.setFont(new Font("Courier", Font.BOLD, 14));
         tempScroll = new JScrollPane(bugList);
         bugList.setBackground(new Color (162, 154, 154));
@@ -125,34 +166,100 @@ public class DefaultWindow {
         main.setVisible(true);
     }
 
-    protected void getBugs() {
-        // Get Bugs from the Database
+    protected void getBugs() throws SQLException {
+       bugs = new Vector<Bug>();
+    	// Get Bugs from the Database
+    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs");
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getInt("status"), rs.getString("assignedDev"));
+			bugs.add(bug);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+		    for(Bug b : bugs){
+		         model.addElement(b.getName().toString());
+		    }    
+		    bugList.setModel(model);     
+		    bugList.setSelectedIndex(0);
+		}
     }
 
-    protected void getProjects() {
+    protected void getProducts() throws SQLException {
+    	products = new Vector<Product>();
         // Get Products from the Database
-    }
+    	PreparedStatement stmt = myConn2.prepareStatement("SELECT * FROM products");
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
+					rs.getInt("numberOfBugs"),rs.getString("details"));
+			products.add(product);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+			    for(Product p : products){
+			         model.addElement(p.getName().toString());
+			    }    
+			    productList.setModel(model);     
+			    productList.setSelectedIndex(0);
+			}
+		}
 
     protected void viewBug(Bug theBug) {
         // View the Bug.
+    	generateBugInfoWindow();
+    	System.out.println(theBug.getName());	
     }
 
-    protected void viewProduct(Product theProduct) {
+    private void generateBugInfoWindow() {
+    	BugInfoWindow newWin = new BugInfoWindow();
+		
+	}
+
+	protected void viewProduct(Product theProduct) {
         // View the Product
+		generateProductInfoWindow();
+    	System.out.println(theProduct.getName());	
     }
 
-    protected void showBugsFrom(Product activeProduct) {
-        // Display thec bugs from the product argument
-    }
+    private void generateProductInfoWindow() {
+    	ProductInfoWindow newWin = new ProductInfoWindow();
+		
+	}
+
+	protected void showBugsFrom(Product activeProduct) throws SQLException {
+        // Display the bugs from the product argument
+		bugs.removeAllElements();
+	
+    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
+    	stmt.setString(1, activeProduct.getName());
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getInt("status"), rs.getString("assignedDev"));
+			bugs.add(bug);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+		    for(Bug b : bugs){
+		         model.addElement(b.getName().toString());
+		    }    
+		    bugList.setModel(model);     
+		    bugList.setSelectedIndex(0);
+			}
+		}
 
     protected void submitNewBug() {
-        // Display the Bugs from the product argument
-        System.out.println("working1");
+    	generateBugSubmissionWindow();
     }
 
-    protected void refresh() {
-        // Refresh.
-        System.out.println("working2");
+    private void generateBugSubmissionWindow() {
+		BugSubmissionWindow bugSubWindow = new BugSubmissionWindow();
+	}
+
+	protected void refresh() throws SQLException {
+        getBugs();
+        getProducts();
     }
 
     public static void main (String[] args) throws SQLException {
