@@ -134,7 +134,7 @@ public class ProjectManagerWindow {
 
         // Create Frame
         JFrame main = new JFrame();
-        main.setTitle("RAID Bug Tracking System: Developer");
+        main.setTitle("RAID Bug Tracking System: Project Manager");
         main.setIconImage(new ImageIcon("Images/Logo.png").getImage());
         main.setSize(800, 1000);
         main.setLocationRelativeTo(null);
@@ -438,9 +438,8 @@ public class ProjectManagerWindow {
    	 // Display the bugs from the product argument
    		bugs.removeAllElements();
    	
-       	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
+       	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
        	stmt.setString(1, activeProduct.getName());
-       	stmt.setInt(2, 0);
    		ResultSet rs = stmt.executeQuery();
    		DefaultListModel<String> model = new DefaultListModel<String>();
    		while(rs.next()) {
