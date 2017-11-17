@@ -11,21 +11,32 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class DefaultWindow {
-	
+
+    // Database Connections
 	private static Connection myConn1, myConn2;
+    // JLists for ProductList and BugList
     protected JList<String> productList, bugList;
+    // Vector of Bugs
     protected Vector<Bug> bugs;
+    // Vector of Products
     protected Vector<Product> products;
+    // JButtons for Submitting a Bug and Refreshing
     protected JButton submitBug, refresh;
+    // Mouse Event Listener
     protected MouseAdapter mouseEventListener;
+    // Button Event Listener
     protected ActionListener buttonEventListener;
+    // Current Product
     protected Product activeProduct;
 
     private class EventListener implements ActionListener {
+        // Display Variable
 		DefaultWindow display;
+        // EventListener COnstructor
 		public EventListener (DefaultWindow d) {
 			display = d;
 		}
+        // If Event Occurs, do this
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submitBug) {
 					try {
@@ -43,6 +54,7 @@ public class DefaultWindow {
 		}
 	}
 
+    // Default Constructor
     public DefaultWindow() throws SQLException {
     	myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
     	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
@@ -51,6 +63,7 @@ public class DefaultWindow {
         refresh();
     }
 
+    // Displays the Window
     public void display() {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -170,6 +183,7 @@ public class DefaultWindow {
         main.setVisible(true);
     }
 
+    // Displays the Bugs in the Vector
     protected void getBugs() throws SQLException {
        bugs = new Vector<Bug>();
     	// Get Bugs from the Database
@@ -177,62 +191,68 @@ public class DefaultWindow {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"),
 					  rs.getInt("status"), rs.getString("assignedDev"));
 			bugs.add(bug);
-			
+
 			DefaultListModel<String> model = new DefaultListModel<String>();
 		    for(Bug b : bugs){
 		         model.addElement(b.getName().toString());
-		    }    
-		    bugList.setModel(model);     
+		    }
+		    bugList.setModel(model);
 		    bugList.setSelectedIndex(0);
 		}
     }
 
+    // Displays the Products
     protected void getProducts() throws SQLException {
     	products = new Vector<Product>();
         // Get Products from the Database
     	PreparedStatement stmt = myConn2.prepareStatement("SELECT * FROM products");
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
-			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
+			Product product = new Product(rs.getString("name"), rs.getDate("created"),
 					rs.getInt("numberOfBugs"),rs.getString("details"));
 			products.add(product);
-			
+
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			    for(Product p : products){
 			         model.addElement(p.getName().toString());
-			    }    
-			    productList.setModel(model);     
+			    }
+			    productList.setModel(model);
 			    productList.setSelectedIndex(0);
 			}
 		}
 
+    // Generates A Bug Window
     protected void viewBug(Bug theBug) {
         // View the Bug.
     	generateBugInfoWindow();
-    	System.out.println(theBug.getName());	
+    	System.out.println(theBug.getName());
     }
 
+    // Generates A Bug Info Window
     private void generateBugInfoWindow() {
-    	BugInfoWindow newWin = new BugInfoWindow();	
+    	BugInfoWindow newWin = new BugInfoWindow();
 	}
 
+    // Views the Products
 	protected void viewProduct(Product theProduct) {
         // View the Product
 		generateProductInfoWindow();
-    	System.out.println(theProduct.getName());	
+    	System.out.println(theProduct.getName());
     }
 
+    // Generates A Product Info Window
     private void generateProductInfoWindow() {
-    	ProductInfoWindow newWin = new ProductInfoWindow();	
+    	ProductInfoWindow newWin = new ProductInfoWindow();
 	}
 
+    // Shows the Bugs from a Specific Product
 	protected void showBugsFrom(Product activeProduct) throws SQLException {
 		 // Display the bugs from the product argument
 			bugs.removeAllElements();
-		
+
 	    	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ? AND status != ?");
 	    	stmt.setString(1, activeProduct.getName());
 	    	stmt.setInt(2, 0);
@@ -240,22 +260,24 @@ public class DefaultWindow {
 			DefaultListModel<String> model = new DefaultListModel<String>();
 			while(rs.next()) {
 				Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
-						  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+						  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"),
 						  rs.getInt("status"), rs.getString("assignedDev"));
 				bugs.add(bug);
-				
+
 			    for(Bug b : bugs){
 			         model.addElement(b.getName().toString());
-			    }    
+			    }
 				}
-			bugList.setModel(model);     
+			bugList.setModel(model);
 		    bugList.setSelectedIndex(0);
 	    }
 
+    // Begins Setup for Bug Submission
     protected void submitNewBug() throws SQLException {
     	generateBugSubmissionWindow();
     }
 
+    // Generates a Bug Submission Window
     private void generateBugSubmissionWindow() throws SQLException {
     	String uType = "Default";
     	int index = productList.getSelectedIndex();
@@ -263,11 +285,13 @@ public class DefaultWindow {
   		refresh();
 	}
 
+    // Refreshes the Frames
 	protected void refresh() throws SQLException {
         getBugs();
         getProducts();
     }
 
+    // Main Function
     public static void main (String[] args) throws SQLException {
         DefaultWindow temp = new DefaultWindow();
     }
