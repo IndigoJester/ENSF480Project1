@@ -9,7 +9,6 @@ public class AddDeveloperWindow {
     private JFrame main;
     private JTextField name, username, password, details;
     private JButton cancelSubmission, submitDev;
-    private Product theProduct;
     private ActionListener buttonEventListener;
 
     private class EventListener implements ActionListener {
@@ -19,9 +18,9 @@ public class AddDeveloperWindow {
 		}
 		public void actionPerformed (ActionEvent e) {
 			if (e.getSource() == submitDev) {
-                addNewDeveloper();
+                display.addNewDeveloper();
 			} else if (e.getSource() == cancelSubmission) {
-                cancelSubmission();
+                display.cancelSubmission();
 			}
 		}
 	}
