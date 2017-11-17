@@ -4,10 +4,15 @@ import javax.swing.event.*;
 import javax.swing.border.*;
 import java.awt.event.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 public class ProjectManagerWindow {
+	private static Connection myConn1, myConn2, myConn3;
 	private JButton removeFixedBug;
 	private JButton rejectBug;
 	private JButton approveBug;
@@ -38,35 +43,64 @@ public class ProjectManagerWindow {
             if (e.getSource() == submitBug) {
                 display.submitNewBug();
             } else if (e.getSource() == refresh) {
-                display.refresh();
+                try {
+					display.refresh();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == removeFixedBug) {
-                display.removeBug();
+                try {
+					display.removeBug();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == rejectBug) {
-                display.rejectBugReport();
+                try {
+					display.rejectBugReport();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == approveBug) {
-                display.approveBugReport();
+                try {
+					display.approveBugReport();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == assignBug) {
                 display.assignBugToDev();
             } else if (e.getSource() == addDeveloper) {
                 display.addDev();
             } else if (e.getSource() == removeDeveloper) {
-                display.removeDev();
+                try {
+					display.removeDev();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == updateDeveloper) {
                 display.updateDev();
             } else if (e.getSource() == addProduct) {
                 display.addNewProduct();
             } else if (e.getSource() == removeProduct) {
-                display.removeAProduct();
+                try {
+					display.removeAProduct();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             } else if (e.getSource() == updateProduct) {
                 display.updateAProduct();
             }
         }
     }
-	public ProjectManagerWindow (String username) {
+	public ProjectManagerWindow (String username) throws SQLException {
+		myConn1 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/bug?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	myConn2 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/product?autoReconnect=true&useSSL=false", "root", "Bigpapi");
+    	myConn3 = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/developer?autoReconnect=true&useSSL=false", "root", "Bigpapi");
         buttonEventListener = new EventListener(this);
         managerName = username;
         this.display();
+        refresh();
 	}
+	
 	public void display () {
         // Set up display defaults
         Font defaultFont = new Font("Candara", Font.BOLD, 20);
@@ -118,6 +152,17 @@ public class ProjectManagerWindow {
         label.setFont(defaultFont);
         devDiv.add(label);
         developerList = new JList();
+        developerList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList developerList = (JList)evt.getSource();
+                if (evt.getClickCount() == 2) {
+                    // Double-click detected
+                    int index = developerList.locationToIndex(evt.getPoint());
+                    Developer get = developers.get(index);
+                    viewDeveloper(get);
+                }
+            }
+        });
         developerList.setFont(new Font("Courier", Font.BOLD, 14));
         JScrollPane tempScroll = new JScrollPane(developerList);
         developerList.setBackground(new Color (162, 154, 154));
@@ -155,7 +200,26 @@ public class ProjectManagerWindow {
         label.setFont(defaultFont);
         productDiv.add(label);
         productList = new JList();
-        productList.setFont(new Font("Courier", Font.BOLD, 14));
+        productList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList productList = (JList)evt.getSource();
+                if(evt.getClickCount() == 1) {
+                	int index = productList.locationToIndex(evt.getPoint());
+                	try {
+						showBugsFrom(products.get(index));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+                }
+                if (evt.getClickCount() == 2) {
+                    // Double-click detected
+                    int index = productList.locationToIndex(evt.getPoint());
+                    Product get = products.get(index);
+                    viewProduct(get);
+                }
+            }
+        });
+        productList.setFont(new Font("Courier", Font.BOLD, 20));
         tempScroll = new JScrollPane(productList);
         productList.setBackground(new Color (162, 154, 154));
         productDiv.add(tempScroll);
@@ -188,7 +252,18 @@ public class ProjectManagerWindow {
         label.setFont(defaultFont);
         bugDiv.add(label);
         bugList = new JList();
-        bugList.setFont(new Font("Courier", Font.BOLD, 14));
+        bugList.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
+                JList bugList = (JList)evt.getSource();
+                if (evt.getClickCount() == 2) {
+                    // Double-click detected
+                    int index = bugList.locationToIndex(evt.getPoint());
+                    Bug get = bugs.get(index);
+                    viewBug(get);
+                }
+            }
+        });
+        bugList.setFont(new Font("Courier", Font.BOLD, 20));
         tempScroll = new JScrollPane(bugList);
         bugList.setBackground(new Color (162, 154, 154));
         bugDiv.add(tempScroll);
@@ -242,52 +317,233 @@ public class ProjectManagerWindow {
         System.out.println("working1");
     }
 
-    protected void refresh() {
+    protected void refresh() throws SQLException {
         // Refresh.
-        System.out.println("working2");
+    	  getBugs();
+          getProducts();
+          getDevelopers();
     }
 
-    private void removeBug () {
-
+    protected void getBugs() throws SQLException {
+    	bugs = new Vector<Bug>();
+      	// Get Bugs from the Database
+      	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs");
+  		ResultSet rs = stmt.executeQuery();
+  		while(rs.next()) {
+  			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+  					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+  					  rs.getInt("status"), rs.getString("assignedDev"));
+  			bugs.add(bug);
+  			
+  			DefaultListModel<String> model = new DefaultListModel<String>();
+  		    for(Bug b : bugs){
+  		         model.addElement(b.getName().toString());
+  		    }    
+  		    bugList.setModel(model);     
+  		    bugList.setSelectedIndex(0);
+  		}
+    }
+    
+    protected void getProducts() throws SQLException {
+    	products = new Vector<Product>();
+        // Get Products from the Database
+    	PreparedStatement stmt = myConn2.prepareStatement("SELECT * FROM products");
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Product product = new Product(rs.getString("name"), rs.getDate("created"), 
+					rs.getInt("numberOfBugs"),rs.getString("details"));
+			products.add(product);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+			    for(Product p : products){
+			         model.addElement(p.getName().toString());
+			    }    
+			    productList.setModel(model);     
+			    productList.setSelectedIndex(0);
+			}
+    }
+    
+    protected void getDevelopers() throws SQLException {
+    	developers = new Vector<Developer>();
+        // Get Products from the Database
+    	PreparedStatement stmt = myConn3.prepareStatement("SELECT * FROM developers");
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Developer developer = new Developer(rs.getString("name"), rs.getString("username"), 
+			rs.getString("details"));
+			
+			developers.add(developer);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+			    for(Developer d : developers){
+			         model.addElement(d.getName().toString());
+			    }    
+			    developerList.setModel(model);     
+			    developerList.setSelectedIndex(0);
+			}
     }
 
-    private void rejectBugReport () {
-
+    protected void showBugsFrom(Product activeProduct) throws SQLException {
+   	 // Display the bugs from the product argument
+		bugs.removeAllElements();
+	
+   	PreparedStatement stmt = myConn1.prepareStatement("SELECT * FROM bugs WHERE fromProduct = ?");
+   	stmt.setString(1, activeProduct.getName());
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Bug bug = new Bug(rs.getString("name"), rs.getString("fromProduct"),
+					  rs.getDate("created"), rs.getBoolean("approved"),rs.getString("details"), 
+					  rs.getInt("status"), rs.getString("assignedDev"));
+			bugs.add(bug);
+			
+			DefaultListModel<String> model = new DefaultListModel<String>();
+		    for(Bug b : bugs){
+		         model.addElement(b.getName().toString());
+		    }    
+		    bugList.setModel(model);     
+		    bugList.setSelectedIndex(0);
+			}
+   }
+    protected void viewProduct(Product theProduct) {
+        // View the Product
+    	generateProductInfoWindow();
+    	System.out.println(theProduct.getName());
+    }
+    
+    private void generateProductInfoWindow() {
+    	ProductInfoWindow newWin = new ProductInfoWindow();
+	}
+    
+    protected void viewBug(Bug theBug) {
+        // View the Bug.
+    	generateBugInfoWindow();
+    	System.out.println(theBug.getName());	
+    }
+    
+    private void generateBugInfoWindow() {
+    	BugInfoWindow newWin = new BugInfoWindow();
+	}
+    
+    protected void viewDeveloper(Developer theDeveloper) {
+        // View the Product
+    	generateDeveloperInfoWindow();
+    	System.out.println(theDeveloper.getName());
+    }
+    
+    private void generateDeveloperInfoWindow() {
+    	DeveloperInfoWindow newWin = new DeveloperInfoWindow();
+	}
+    
+    private void removeBug () throws SQLException {
+    	int index = bugList.getSelectedIndex();
+    	
+        PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
+      	stmt.setString(1, bugs.get(index).getName());
+    	int rs = stmt.executeUpdate();
+  		if(rs == 1) {
+  			bugs.remove(index);
+  		}else {
+  			JOptionPane.showMessageDialog(null, "Error removing bug!", "Error",
+  	                JOptionPane.ERROR_MESSAGE);
+  		}
     }
 
-    private void approveBugReport () {
+    private void rejectBugReport () throws SQLException {
+    	int index = bugList.getSelectedIndex();
+    	if(bugs.get(index).getStatus() == 0) {
+    		  PreparedStatement stmt = myConn1.prepareStatement("DELETE FROM bugs Where name = ?");
+    	      stmt.setString(1, bugs.get(index).getName());
+    	  	int rs = stmt.executeUpdate();
+    	}else {
+    		JOptionPane.showMessageDialog(null, "Cannot reject a already approved or fixed bug!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+    	}
+    }
 
+    private void approveBugReport () throws SQLException {
+    	int index = bugList.getSelectedIndex();
+    	if(bugs.get(index).getStatus() == 0) {
+    		  PreparedStatement stmt = myConn1.prepareStatement("UPDATE bugs set status = ? where first_name = ?");
+    	      stmt.setInt(1, 1);
+    		  stmt.setString(2, bugs.get(index).getName());
+    	  	  ResultSet rs = stmt.executeQuery();
+    	  	  bugs.get(index).setStatus(1);
+    	}else {
+    		JOptionPane.showMessageDialog(null, "Cannot approve a already approved or fixed bug!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+    	}
     }
 
     private void assignBugToDev () {
-
+    	generateAssignBugWindow();
     }
 
-    private void addDev () {
+    private void generateAssignBugWindow() {
+		AssignBugWindow assignWindow = new AssignBugWindow();	
+	}
 
+	private void addDev () {
+		generateAddDevWindow();
     }
 
-    private void removeDev () {
+    private void generateAddDevWindow() {
+		AddDeveloperWindow addDevWindow = new AddDeveloperWindow();
+	}
 
+	private void removeDev () throws SQLException {
+		int index = developerList.getSelectedIndex();
+    	
+        PreparedStatement stmt = myConn3.prepareStatement("DELETE FROM developers Where name = ?");
+      	stmt.setString(1, developers.get(index).getName());
+      	int rs = stmt.executeUpdate();
+  		if(rs == 1) {
+  			developers.remove(index);
+  		}else {
+  			JOptionPane.showMessageDialog(null, "Error removing developer!", "Error",
+                JOptionPane.ERROR_MESSAGE);
+  		}	
     }
 
     private void updateDev () {
-
+    	generateUpdateDevWindow();
     }
 
-    private void addNewProduct () {
+    private void generateUpdateDevWindow() {
+		UpdateDeveloperWindow updateDevWindow = new UpdateDeveloperWindow();
+	}
 
+	private void addNewProduct () {
+		generateAddNewProductWindow();
     }
 
-    private void removeAProduct () {
+    private void generateAddNewProductWindow() {
+		AddProductWindow addProductWindow = new AddProductWindow();
+	}
 
+	private void removeAProduct () throws SQLException {
+		int index = productList.getSelectedIndex();
+    	
+        PreparedStatement stmt = myConn2.prepareStatement("DELETE FROM products Where name = ?");
+      	stmt.setString(1, products.get(index).getName());
+  		int rs = stmt.executeUpdate();
+  		if(rs == 1) {
+    	products.remove(index);	
+  		}else {
+  			JOptionPane.showMessageDialog(null, "Error removing product!", "Error",
+                JOptionPane.ERROR_MESSAGE);
+  		}
     }
 
     private void updateAProduct () {
-
+    	generateUpdateProductWindow();
     }
 
-    public static void main (String[] args) throws SQLException {
+    private void generateUpdateProductWindow() {
+		UpdateProductWindow updateProductWindow = new UpdateProductWindow();
+		
+	}
+
+	public static void main (String[] args) throws SQLException {
         ProjectManagerWindow temp = new ProjectManagerWindow("ManagerName");
     }
 }

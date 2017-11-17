@@ -8,9 +8,8 @@ public class AddDeveloperWindow {
     public JTextField details;
     public JButton submit, cancel;
 
-    public AddDeveloperWindow(DeveloperWindow disp) {
+    public AddDeveloperWindow() {
         this.disp = disp;
-        disp.display();
     }
 
     private void addNewDeveloper() {
