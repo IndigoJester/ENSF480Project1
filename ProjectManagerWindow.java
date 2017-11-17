@@ -83,7 +83,7 @@ public class ProjectManagerWindow {
         main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         // Set background image
-        BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Default.png");
+        BackgroundPanel background = new BackgroundPanel(new BorderLayout(), "Images/Manager.png");
 
         // Panel to control the display
         JPanel controlBox = new JPanel();
@@ -104,6 +104,10 @@ public class ProjectManagerWindow {
         contentDiv.setOpaque(false);
 
         // Developer stuff
+        JPanel developerControl = new JPanel();
+        developerControl.setLayout(new BorderLayout());
+        developerControl.setOpaque(false);
+
         JPanel devDiv = new JPanel();
         devDiv.setLayout(new BoxLayout(devDiv, BoxLayout.Y_AXIS));
         devDiv.setOpaque(false);
@@ -118,9 +122,29 @@ public class ProjectManagerWindow {
         JScrollPane tempScroll = new JScrollPane(developerList);
         developerList.setBackground(new Color (162, 154, 154));
         devDiv.add(tempScroll);
-        contentDiv.add(devDiv);
+        developerControl.add("Center", devDiv);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 30, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(new EmptyBorder (10, 0, 10, 0));
+        addDeveloper = new CustomJButton(21, 38, "Add New Developer");
+        addDeveloper.addActionListener(buttonEventListener);
+        buttonPanel.add(addDeveloper);
+        removeDeveloper = new CustomJButton(21, 38, "Remove Developer");
+        removeDeveloper.addActionListener(buttonEventListener);
+        buttonPanel.add(removeDeveloper);
+        updateDeveloper = new CustomJButton(21, 38, "Update Developer");
+        updateDeveloper.addActionListener(buttonEventListener);
+        buttonPanel.add(updateDeveloper);
+        developerControl.add("South", buttonPanel);
+        contentDiv.add(developerControl);
 
         // Product Stuff
+        JPanel productControl = new JPanel();
+        productControl.setLayout(new BorderLayout());
+        productControl.setOpaque(false);
+
         JPanel productDiv = new JPanel();
         productDiv.setLayout(new BoxLayout(productDiv, BoxLayout.Y_AXIS));
         productDiv.setOpaque(false);
@@ -135,7 +159,23 @@ public class ProjectManagerWindow {
         tempScroll = new JScrollPane(productList);
         productList.setBackground(new Color (162, 154, 154));
         productDiv.add(tempScroll);
-        contentDiv.add(productDiv);
+        productControl.add("Center", productDiv);
+
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 30, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(new EmptyBorder (10, 0, 10, 0));
+        addProduct = new CustomJButton(20, 38, "Add New Product");
+        addProduct.addActionListener(buttonEventListener);
+        buttonPanel.add(addProduct);
+        removeProduct = new CustomJButton(20, 38, "Remove Product");
+        removeProduct.addActionListener(buttonEventListener);
+        buttonPanel.add(removeProduct);
+        updateProduct = new CustomJButton(20, 38, "Update Product");
+        updateProduct.addActionListener(buttonEventListener);
+        buttonPanel.add(updateProduct);
+        productControl.add("South", buttonPanel);
+        contentDiv.add(productControl);
 
         // Bug stuff
         JPanel bugDiv = new JPanel();
@@ -159,10 +199,10 @@ public class ProjectManagerWindow {
         manyButtons.setLayout(new GridLayout(0, 1));
         manyButtons.setOpaque(false);
 
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 30, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(new EmptyBorder (20, 0, 10, 0));
+        buttonPanel.setBorder(new EmptyBorder (5, 0, 5, 0));
         submitBug = new CustomJButton(19, 38, "Submit New Bug");
         submitBug.addActionListener(buttonEventListener);
         buttonPanel.add(submitBug);
@@ -177,7 +217,7 @@ public class ProjectManagerWindow {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout (FlowLayout.CENTER, 30, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(new EmptyBorder (10, 0, 20, 0));
+        buttonPanel.setBorder(new EmptyBorder (5, 0, 5, 0));
         rejectBug = new CustomJButton(23, 38, "Reject A Reported Bug");
         rejectBug.addActionListener(buttonEventListener);
         buttonPanel.add(rejectBug);
@@ -187,7 +227,6 @@ public class ProjectManagerWindow {
         refresh = new CustomJButton(19, 38, "Refresh Results");
         refresh.addActionListener(buttonEventListener);
         buttonPanel.add(refresh);
-
         manyButtons.add(buttonPanel);
 
         controlBox.add("South", manyButtons);
