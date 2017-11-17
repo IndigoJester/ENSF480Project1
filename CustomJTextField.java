@@ -7,10 +7,13 @@ import java.awt.geom.Rectangle2D;
 
 public class CustomJTextField extends JTextField implements FocusListener {
 
+    // CustomJTextField Inset
 	private Insets fieldInsets;
 
+    //CustomJTextField Shape
 	private Shape fieldShape;
 
+    // CustomJTextField Constructor
 	public CustomJTextField (int size) {
 		super(size);
 		setForeground(new Color(54, 51, 51));
@@ -23,6 +26,7 @@ public class CustomJTextField extends JTextField implements FocusListener {
 		addFocusListener(this);
 	}
 
+    // Paints the Text Field
 	protected void paintComponent (Graphics g) {
 		g.setColor(new Color(162, 154, 154));
         g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
@@ -30,6 +34,7 @@ public class CustomJTextField extends JTextField implements FocusListener {
 		setMargin(new Insets(2, 6, 2, 2));
 	}
 
+    // Paints the Border of the Text Field
 	protected void paintBorder (Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         Stroke oldStroke = g2.getStroke();
@@ -44,6 +49,7 @@ public class CustomJTextField extends JTextField implements FocusListener {
         g2.setStroke(oldStroke);
     }
 
+    // Returns True of False
 	public boolean contains (int x, int y) {
         if (fieldShape == null || !fieldShape.getBounds().equals(getBounds())) {
             fieldShape = new Rectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1);
@@ -51,10 +57,12 @@ public class CustomJTextField extends JTextField implements FocusListener {
         return fieldShape.contains(x, y);
     }
 
+    // Repaints if Focus Gained
 	public void focusGained (FocusEvent e) {
 		repaint();
 	}
 
+    // repaints if Focus Lost
 	public void focusLost (FocusEvent e) {
 		repaint();
 	}

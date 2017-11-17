@@ -6,8 +6,10 @@ import java.awt.geom.Rectangle2D;
 
 public class CustomJButton extends JButton {
 
+    // Shape for the Button
 	private Shape buttonShape;
 
+    // CustomJButton Constructor
 	public CustomJButton (int sizeX, int sizeY, String text) {
 		super(text);
 		setOpaque(false);
@@ -19,6 +21,7 @@ public class CustomJButton extends JButton {
 		setCursor(new Cursor(Cursor.HAND_CURSOR));
 	}
 
+    // Paint Component (Colors)
 	protected void paintComponent (Graphics g) {
 		g.setColor(new Color(162, 154, 154)); // FIX
 		g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
@@ -30,6 +33,7 @@ public class CustomJButton extends JButton {
 		super.paintComponent(g);
 	}
 
+    // Paints the Border
 	protected void paintBorder (Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         Stroke oldStroke = g2.getStroke();
@@ -43,6 +47,7 @@ public class CustomJButton extends JButton {
         g2.setStroke(oldStroke);
 	}
 
+    // Returns true or False
 	public boolean contains (int x, int y) {
         if (buttonShape == null || !buttonShape.getBounds().equals(getBounds())) {
             buttonShape = new Rectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1);
@@ -50,6 +55,7 @@ public class CustomJButton extends JButton {
         return buttonShape.contains(x, y);
     }
 
+    // Sets Content Area Filled
 	public void setContentAreaFilled (boolean b) {
 	}
 }
